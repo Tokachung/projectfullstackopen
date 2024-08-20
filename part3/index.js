@@ -32,9 +32,15 @@ app.get('/api/notes', (req, res) => {
     res.json(notes)
 })
 
+// The colon syntax means that we will handle all requests that match the route /api/notes/:id
+app.get('/api/notes/:id', (req, res) => {
+    const id = req.params.id
+    const note = notes.find(note => note.id === id)
+    response.json(note)
+})
+
 const PORT = 3001
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 }) // This is a different listen from the one in http. This is an express method
-
