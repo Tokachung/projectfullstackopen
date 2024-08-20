@@ -1,7 +1,6 @@
-const http = require('http')
+const express = require('express') // Using express instead of http
+const app = express() // Creating an express app
 
-// The primary purpose of the backend server is to offer raw data in JSON format to the frontend.
-// This is why we get our server to return a hardcoded list of notes in JSON format. 
 let notes = [
     {
       id: "1",
@@ -20,25 +19,22 @@ let notes = [
     }
 ]
 
-// We create a new server with the createServer function.
-// We register an event handler that is called everytme an HTTP request is made to the server
-// After the request is made, the response is sent with the response.writeHead and response.end methods.
-// We are manually writing a status code of 200 and a content type of text/plain to the response header.
-const app = http.createServer((request, response) => {
-    response.writeHead(200, { 'Content-Type': 'text/plain' })
-    response.end(JSON.stringify(notes))
+// The code below defines two routes for the app. Thie first one defines an event handler to handle HTTP GET request made to the root.
+// The second one defines an event handler to handle HTTP GET request made to the /api/notes route.
+
+// When we call the get method, we pass two parameters to it. The first parameter is the route, and the second parameter is the event handler function.
+// 
+app.get('/', (req, res) => {
+    res.send('<h1>Hello World!</h1>')
 })
 
-
-
-
-
-
-
-
-
-
+app.get('/api/notes', (req, res) => {
+    res.json(notes)
+})
 
 const PORT = 3001
-app.listen(PORT)
-console.log(`Server running on port ${PORT}`)
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+}) // This is a different listen from the one in http. This is an express method
+
