@@ -22,10 +22,35 @@ let notes = [
     }
 ]
 
+// Make a function to generate the id for the new note in the post request
+const generateId = () => {
+  const maxId = notes.length > 0
+  ? Math.max(...notes.map(n => Number(n.id))): 0
+  return String(maxId + 1) // Return the maximum id + 1 as a string
+}
+
+// Make a post request to the /api/notes route
 app.post('/api/notes', (req, res) => {
-  const note = req.body
-  console.log(note)
-  res.json(note)
+
+  // Set the content of the note to the content of the request body
+  const body = req.body
+
+  if (!body.content) {
+    return res.status(400).json({
+      error: 'content missing'
+    })
+  }
+
+  const note = {
+    content: body.content,
+    important: Boolean(body.important) || false, // If the important field is missing, the important field will be set to false
+    id: generateId()
+  }
+
+  notes = notes.concat(note) // Add the new note to the notes array
+
+  res.json(note) // Send the new note as a response
+  console.log(note) // Log the new note to the console
 })
 
 // The code below defines two routes for the app. Thie first one defines an event handler to handle HTTP GET request made to the root.
