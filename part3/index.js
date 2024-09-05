@@ -30,7 +30,7 @@ const generateId = () => {
 }
 
 // Make a post request to the /api/notes route
-app.post('/api/notes', (req, res) => {
+app.post('/api/persons', (req, res) => {
 
   // Set the content of the note to the content of the request body
   const body = req.body
@@ -61,7 +61,7 @@ app.get('/', (req, res) => {
     res.send('<h1>Hello World!</h1>')
 })
 
-app.get('/api/notes', (req, res) => {
+app.get('/api/persons', (req, res) => {
     res.json(notes)
 })
 
