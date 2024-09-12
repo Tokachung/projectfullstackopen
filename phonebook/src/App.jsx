@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import personService from './services/persons'
-
+const baseUrl = '/api/persons'
 
 const App = () => {
-
   const addNewPerson = (newPerson) => {
     const personInPersons = persons.find(person => person.name === newPerson.name)
     if (personInPersons){
@@ -30,7 +29,7 @@ const App = () => {
   }
 
   const deletePerson = (id) => {
-    const url = `http://localhost:3001/persons/${id}`
+    const url = `${baseUrl}/${id}`
     const editedPersons = persons.filter((p => p.id !== id));
     return axios.delete(url).then((response) => {
       setPersons(editedPersons)
@@ -105,8 +104,6 @@ const Form = ({addNewPerson}) => {
 
 }
 
-
-
 const Persons = ({setPersons, persons, deletePerson}) => {
   return (
     <div>
@@ -129,10 +126,6 @@ const Filter = ({nameFilter, handleNameFilterChange}) => {
       filter shown with <input value={nameFilter} onChange={handleNameFilterChange}/>
     </div>
   )
-
 }
-
-
-
 
 export default App

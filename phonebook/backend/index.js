@@ -1,15 +1,18 @@
 const express = require('express')
 var morgan = require('morgan')
-
 const app = express()
-
+const cors = require('cors')
 // Middleware to parse JSON bodies
 app.use(express.json())
+
 
 // Middleware to capture JSON response
 morgan.token('body', function getBody (req) {
   return JSON.stringify(req.body)
 })
+
+app.use(cors()) // Enable CORS
+app.use(express.static('dist'))
 // log response to console
 app.use(morgan(':method :status :url - :response-time ms :body '))
 
@@ -103,7 +106,7 @@ const generateId = () => {
     res.status(204).end()
   })
   
-  const PORT = 3001
+  const PORT = process.env.PORT || 3000
   
   app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`)
