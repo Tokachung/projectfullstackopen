@@ -5,7 +5,6 @@ const cors = require('cors')
 // Middleware to parse JSON bodies
 app.use(express.json())
 
-
 // Middleware to capture JSON response
 morgan.token('body', function getBody (req) {
   return JSON.stringify(req.body)
