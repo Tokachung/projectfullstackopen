@@ -16,7 +16,7 @@ mongoose.connect(url)
         console.log('error connecting to MongoDB:', error.message)
     })
 
-// Now we want to define the new note schema
+// Now we want to define the new person schema
 const personSchema = new mongoose.Schema({
     name: String,
     number: String
@@ -32,4 +32,4 @@ personSchema.set('toJSON', {
 })
 
 // Export the Note model
-module.exports = mongoose.model('Note', personSchema) // Export the Note model
+module.exports = mongoose.model('Person', personSchema) // Export the Note model
