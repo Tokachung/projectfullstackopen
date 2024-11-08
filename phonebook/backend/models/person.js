@@ -19,8 +19,18 @@ mongoose.connect(url)
 // Now we want to define the new person schema
 const personSchema = new mongoose.Schema({
     name: String,
-    number: String
-})
+    number: {
+        type: String,
+        minLength: 8,
+        required: true,
+        validate: {
+            validator: function(number) {
+                return /^\d{2,3}-\d+$/.test(number);
+            },
+            message: props => `${props.value} is not a valid phone number`
+        }
+    }
+});
 
 // We want to remove the extra fields from the BSON object that is returned, and turn it into a JSON object
 personSchema.set('toJSON', {

@@ -20,8 +20,27 @@ app.use(cors()) // Enable CORS
 app.use(express.static('dist'))
 app.use(morgan(':method :status :url - :response-time ms :body '))
 
+const updatePerson = async (person, res, next) => {
+  try {
+    const updatedPerson = await Person.findOneAndUpdate({ name: person.name}, { number: person.number }, { new: true })
+    res.json(updatedPerson)
+  } catch (error) {
+    console.log("failed during the update")
+    next(error)
+  }
+}
+const savePerson = async (person, res, next) => {
+  try {
+    const savedPerson = await person.save()
+      res.json(savedPerson)
+    } catch (error) {
+      console.log("failed during the save")
+    next(error)
+  }
+}
+
 // Make a post request to the /api/persons route
-app.post('/api/persons', async (req, res) => {
+app.post('/api/persons', async (req, res, next) => {
   const body = req.body
 
   if (body.name == undefined) {
@@ -29,7 +48,6 @@ app.post('/api/persons', async (req, res) => {
       error: 'name is missing'
     })
   }
-
   const person = new Person({
     name: body.name,
     number: body.number
@@ -37,18 +55,13 @@ app.post('/api/persons', async (req, res) => {
 
   try {
     const existingPerson = await Person.exists({ name: person.name });
-
     if (existingPerson) {
-      const updatedPerson = await Person.findOneAndUpdate({ name: person.name }, { number: person.number }, { new: true });
-      return res.json(updatedPerson);
-    }
-    else {
-      person.save().then(savedPerson => {
-        res.json(savedPerson)
-      })
+      await updatePerson(person, res, next)
+    } else {
+      await savePerson(person, res, next)
     }
   } catch (error) {
-    next(error);
+    next(error)
   }
 });
 
