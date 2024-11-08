@@ -9,36 +9,36 @@ console.log('connecting to', url)
 
 // Because we know connect returns a promise, we can use async/await and then catch the response or the error
 mongoose.connect(url)
-    .then(result => {
-        console.log('connected to MongoDB')
-    })
-    .catch((error) => {
-        console.log('error connecting to MongoDB:', error.message)
-    })
+  .then(() => {
+    console.log('connected to MongoDB')
+  })
+  .catch((error) => {
+    console.log('error connecting to MongoDB:', error.message)
+  })
 
 // Now we want to define the new person schema
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: {
-        type: String,
-        minLength: 8,
-        required: true,
-        validate: {
-            validator: function(number) {
-                return /^\d{2,3}-\d+$/.test(number);
-            },
-            message: props => `${props.value} is not a valid phone number`
-        }
+  name: String,
+  number: {
+    type: String,
+    minLength: 8,
+    required: true,
+    validate: {
+      validator: function(number) {
+        return /^\d{2,3}-\d+$/.test(number)
+      },
+      message: props => `${props.value} is not a valid phone number`
     }
-});
+  }
+})
 
 // We want to remove the extra fields from the BSON object that is returned, and turn it into a JSON object
 personSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString()
-        delete returnedObject._id
-        delete returnedObject.__v
-    }
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
 })
 
 // Export the Note model

@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for backend-cool-pond-3399 on 2024-09-12T15:58:51+12:00
+# fly.toml app configuration file generated for backend-floral-feather-5423 on 2024-11-08T16:54:22+13:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'backend-cool-pond-3399'
+app = 'backend-floral-feather-5423'
 primary_region = 'syd'
 
 [build]

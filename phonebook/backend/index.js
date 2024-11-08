@@ -23,19 +23,19 @@ app.use(morgan(':method :status :url - :response-time ms :body '))
 
 const updatePerson = async (person, res, next) => {
   try {
-    const updatedPerson = await Person.findOneAndUpdate({ name: person.name}, { number: person.number }, { new: true })
+    const updatedPerson = await Person.findOneAndUpdate({ name: person.name }, { number: person.number }, { new: true })
     res.json(updatedPerson)
   } catch (error) {
-    console.log("failed during the update")
+    console.log('failed during the update')
     next(error)
   }
 }
 const savePerson = async (person, res, next) => {
   try {
     const savedPerson = await person.save()
-      res.json(savedPerson)
-    } catch (error) {
-      console.log("failed during the save")
+    res.json(savedPerson)
+  } catch (error) {
+    console.log('failed during the save')
     next(error)
   }
 }
@@ -44,7 +44,7 @@ const savePerson = async (person, res, next) => {
 app.post('/api/persons', async (req, res, next) => {
   const body = req.body
 
-  if (body.name == undefined) {
+  if (body.name === undefined) {
     return res.status(400).json({
       error: 'name is missing'
     })
@@ -55,7 +55,7 @@ app.post('/api/persons', async (req, res, next) => {
   })
 
   try {
-    const existingPerson = await Person.exists({ name: person.name });
+    const existingPerson = await Person.exists({ name: person.name })
     if (existingPerson) {
       await updatePerson(person, res, next)
     } else {
@@ -64,7 +64,7 @@ app.post('/api/persons', async (req, res, next) => {
   } catch (error) {
     next(error)
   }
-});
+})
 
 // The code below defines two routes for the app. Thie first one defines an event handler to handle HTTP GET request made to the root.
 // The second one defines an event handler to handle HTTP GET request made to the /api/persons route.
@@ -88,7 +88,7 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  Person.findByIdAndDelete(req.params.id).then(result => {
+  Person.findByIdAndDelete(req.params.id).then(() => {
     res.status(204).end()
     console.log('Deleted')
   })
@@ -118,7 +118,7 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
   if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id'})
+    return response.status(400).send({ error: 'malformatted id' })
   }
   next(error)
 }
