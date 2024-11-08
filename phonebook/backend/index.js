@@ -8,7 +8,8 @@ require('dotenv').config()
 
 const app = express()
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3000
+const HOST = '0.0.0.0'
 
 // Middleware to capture JSON response
 morgan.token('body', function getBody(req) {
@@ -94,7 +95,7 @@ app.delete('/api/persons/:id', (req, res) => {
     .catch(error => next(error))
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   console.log(`Server running on port ${PORT}`)
 }) // This is a different listen from the one in http. This is an express method
 
