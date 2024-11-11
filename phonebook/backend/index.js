@@ -74,20 +74,22 @@ app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({}).then(persons => {
     res.json(persons)
   })
+    .catch(error => next(error))
 })
 
 // The colon syntax means that we will handle all requests that match the route /api/persons/:id
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
   Person.findById(req.params.id).then(person => {
     res.json(person)
   })
+    .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id).then(() => {
     res.status(204).end()
     console.log('Deleted')
