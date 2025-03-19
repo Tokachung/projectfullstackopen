@@ -2,7 +2,8 @@ const { test, describe } = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
 
-test('dummy returns one', () => {
+test('dummy returns one', async () => {
+
     const blogs = []
 
     const result = listHelper.dummy(blogs)
