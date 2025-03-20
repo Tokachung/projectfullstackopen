@@ -55,7 +55,7 @@ test('a valid blog can be added', async () => {
 
 })
 
-test.only('blog without title is not added', async () => {
+test('blog without title is not added', async () => {
 
   const blogsAtStart = await helper.blogsInDb()
 
@@ -78,6 +78,23 @@ test('when blogs are added and then retrieved, we retrieve the id field and not 
     assert.ok(blog.id, 'Blog should have id property')
     assert.equal(blog._id, undefined, 'Blog should not have an _id property') 
   })
+})
+
+test.only('If likes property missing, return value 0', async () => {
+  await Blog.deleteMany({})
+
+  const newBlog = {
+    url: 'https://ayechanzaw.com/gpt-4o',
+    author: "Aye Chan Zaw",
+    title: "How to prompt gpt-4o for defect detection"
+
+  }
+  await api.post('/api/blogs').send(newBlog).expect(201)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const addedBlog = blogsAtEnd[0]
+
+  assert.equal(addedBlog.likes, 0)
 })
 
 after(async () => {
