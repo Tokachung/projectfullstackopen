@@ -61,6 +61,23 @@ test('blog without title is not added', async () => {
 
   const newBlog = {
     url: 'https://ayechanzaw.com/gpt-4o',
+    author: "Aye Chan Zaw"
+  }
+
+  await api.post('/api/blogs').send(newBlog).expect(400)
+
+  const blogsAtEnd = await helper.blogsInDb()
+
+  assert.strictEqual(blogsAtStart.length, blogsAtEnd.length)
+})
+
+test('blog without url is not added', async () => {
+
+  const blogsAtStart = await helper.blogsInDb()
+
+  const newBlog = {
+    title: "How to prompt gpt-4o for defect detection",
+    author: "Aye Chan Zaw"
   }
 
   await api.post('/api/blogs').send(newBlog).expect(400)
