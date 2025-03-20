@@ -70,6 +70,16 @@ test.only('blog without title is not added', async () => {
   assert.strictEqual(blogsAtStart.length, blogsAtEnd.length)
 })
 
+test('when blogs are added and then retrieved, we retrieve the id field and not the _id field', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  console.log(blogsAtStart)
+
+  blogsAtStart.forEach((blog) => {
+    assert.ok(blog.id, 'Blog should have id property')
+    assert.equal(blog._id, undefined, 'Blog should not have an _id property') 
+  })
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
