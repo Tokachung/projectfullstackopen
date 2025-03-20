@@ -128,6 +128,25 @@ test('a blog can be deleted', async () => {
   assert.strictEqual(blogsAtStart.length, blogsAtEnd.length + 1)
 })
 
+test.only('a blog can be updated', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+
+  const newBlog = {
+    title: "How to prompt gpt-4.5 for defect detection",
+    author: "Aye Chan Zaw",
+    url: 'https://ayechanzaw.com/gpt-4o'
+  }
+  
+  await api.put(`/api/blogs/${blogToUpdate.id}`, newBlog).expect(200)
+
+  const blogsAtEnd = await helper.blogsInDb()
+
+  const titles = blogsAtEnd.map(r => r.title)
+
+  assert(!titles.includes(newBlog.title))
+  assert.strictEqual(blogsAtStart.length, blogsAtEnd.length)
+})
 
 after(async () => {
   await mongoose.connection.close()
