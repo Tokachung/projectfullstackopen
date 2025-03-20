@@ -97,7 +97,7 @@ test('when blogs are added and then retrieved, we retrieve the id field and not 
   })
 })
 
-test.only('If likes property missing, return value 0', async () => {
+test('If likes property missing, return value 0', async () => {
   await Blog.deleteMany({})
 
   const newBlog = {
@@ -113,6 +113,21 @@ test.only('If likes property missing, return value 0', async () => {
 
   assert.equal(addedBlog.likes, 0)
 })
+
+test('a blog can be deleted', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToDelete = blogsAtStart[0]
+  console.log('blog to delete', blogToDelete)
+
+  await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const titles = blogsAtEnd.map(r => r.title)
+
+  assert(!titles.includes(blogToDelete.title))
+  assert.strictEqual(blogsAtStart.length, blogsAtEnd.length + 1)
+})
+
 
 after(async () => {
   await mongoose.connection.close()
