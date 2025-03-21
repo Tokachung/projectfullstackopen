@@ -14,7 +14,7 @@ blogsRouter.post('/', async (request, response, next) => {
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
   if (!decodedToken.id) {
     console.log('there is no token')
-    return response.status(401).json({ error: 'invalid token'})
+    return response.status(401).json({ error: 'cannot post with invalid token'})
   }
 
   const user = await User.findById(decodedToken.id) // Only users can make posts now, so we expect userId to be provided
@@ -48,7 +48,25 @@ blogsRouter.post('/', async (request, response, next) => {
 })
 
 blogsRouter.delete('/:id', async (request, response, next) => {
-  await Blog.findByIdAndDelete(request.params.id)
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  console.log('decoded token is: ', decodedToken)
+
+  if (!decodedToken) {
+    console.log('there is no token')
+    return response.status(401).json({ error: 'cannot delete with invalid token'})
+  }
+
+  console.log('request inside is', request.params.id)
+  const blog = await Blog.findById(request.params.id)
+  console.log(blog)
+  
+  if ( blog.user.toString() === decodedToken.id) {
+    await Blog.findByIdAndDelete(request.params.id.toString())
+  } else {
+    return response.status(401).json({ error: 'wrong user, invalid delete operation'})
+  }
+  
   response.status(204).end()
 })
 
