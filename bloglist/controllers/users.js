@@ -1,19 +1,35 @@
-// const usersRouter = require('express').Router() // Use express to create routes
-// const User = require('../models/user')
+const usersRouter = require('express').Router() // Use express to create routes
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
 
-// usersRouter.get('/', async (request, response) => {
-//     // Find the users
-//     const users = await Users.find({})
-//     response.json(users)
-// })
+usersRouter.get('/', async (request, response) => {
+    // Find the users
+    const users = await Users.find({})
+    response.json(users)
+})
 
-// usersRouter.post('/', async (request, response, next) => {
-//     // Take the request given and extract the body
-//     const body = request.body
+usersRouter.post('/', async (request, response, next) => {
+    // Take the request given and extract the body
+    const { username, name, password } = request.body
+
+    console.log('username is', username)
+    console.log('password is', password)
+    let test_password = await bcrypt.hash(password, 10)
+    console.log('test password is: ', test_password)
+    // Create a user object using Mongoose Schema
+    const user = new User ({
+        username: username,
+        name: name,
+        passwordHash: await bcrypt.hash(password, 10)
+    })
+
+    console.log('user is', user)
     
-//     // Create a user object using Mongoose Schema
-//     const user = new User ({
-//         username: body.username,
-//         name:
-//     })
-// })
+    // Save user into the database and return Mongoose object
+    const savedUser = await user.save()
+
+    // Take mongoose object, and cast it to json and update response code
+    response.status(201).json(savedUser)
+})
+
+module.exports = usersRouter
