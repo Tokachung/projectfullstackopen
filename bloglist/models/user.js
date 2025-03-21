@@ -1,16 +1,16 @@
 const mongoose = require('mongoose')
 
-const userSchema = new mongoose.userSchema({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
         unique: true
     },
     name: { type: String, required: false },
-    passwordhash: {
+    passwordHash: {
         type: String,
         required: true
-    },
+    }, // Map the id of each blog to each user
     blogs: [
         { type: mongoose.Schema.Types.ObjectId ,
             ref: 'Blog'
