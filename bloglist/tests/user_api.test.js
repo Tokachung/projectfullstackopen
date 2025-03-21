@@ -48,7 +48,7 @@ describe('when there is initially one user in db', () => {
         assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
     })
 
-    test.only('if username is taken, do not add the new user', async () => {
+    test('if username is taken, do not add the new user', async () => {
         
         // Note that the funciton is asynchronous
         const usersAtStart = await helper.usersInDb()
@@ -72,7 +72,46 @@ describe('when there is initially one user in db', () => {
         assert.strictEqual(usersAtEnd.length, usersAtStart.length)
     })
 
+    test('if username is too short, return error', async () => {
+        
+        // Note that the funciton is asynchronous
+        const usersAtStart = await helper.usersInDb()
 
+        // Note that for api interactions, we send a normal object
+        const newUser = {
+            username: "ro",
+            name: "zhelin wang",
+            password: "123"
+        }
+
+        const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+
+        // Note that the funciton is asynchronous
+        const usersAtEnd = await helper.usersInDb()
+
+        assert(result.body.error.includes('username must be at least 3 characters long'))
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+    })
+
+    test('if password is too short, return error', async () => {
+        
+        // Note that the funciton is asynchronous
+        const usersAtStart = await helper.usersInDb()
+
+        // Note that for api interactions, we send a normal object
+        const newUser = {
+            username: "test_username",
+            name: "zhelin wang",
+            password: "12"
+        }
+
+        const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+
+        const usersAtEnd = await helper.usersInDb()
+        
+        assert(result.body.error.includes('password must be at least 3 characters long'))
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+    })
 })
 
 // Always remember to close the connection afterwards

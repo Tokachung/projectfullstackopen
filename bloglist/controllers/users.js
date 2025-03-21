@@ -12,8 +12,16 @@ usersRouter.post('/', async (request, response, next) => {
     // Take the request given and extract the body
     const { username, name, password } = request.body
 
-    console.log('username is', username)
-    console.log('password is', password)
+    // Validate password length
+    if (!password || password.length < 3) {
+        return response.status(400).json({ error: "password must be at least 3 characters long"})
+    }
+
+    // Validate username length
+    if (!username || username.length < 3) {
+        return response.status(400).json({ error: "username must be at least 3 characters long"})
+    }
+
     let test_password = await bcrypt.hash(password, 10)
     console.log('test password is: ', test_password)
     // Create a user object using Mongoose Schema
