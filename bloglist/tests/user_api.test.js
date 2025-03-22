@@ -5,6 +5,7 @@ const assert = require('node:assert')
 const { test, describe, beforeEach, after } = require('node:test')
 const supertest = require('supertest')
 const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
 
 const app = require('../app')
 const api = supertest(app)
@@ -13,18 +14,33 @@ describe('when there is initially one user in db', () => {
     beforeEach(async () => {
         await User.deleteMany({})
 
-        // Note that we do the hashing here to simulate the API
-        const passwordHash = await bcrypt.hash("password", 10)
-        const user = new User({
-            username: 'root',
-            name: "root user",
-            passwordHash: passwordHash
+        // Create a test user
+        const testUser = new User({
+            username: 'test user',
+            name: 'test user name',
+            passwordHash: await bcrypt.hash('testpassword', 10)
         })
+        
+        // Save test user into db
+        const savedUser = await testUser.save()
 
-        await user.save()
+        // Generate a JWT token for the test user that we can use in the tests
+        const userForToken = {
+            username: savedUser.username,
+            id: savedUser._id,
+            name: savedUser.name
+        }
+
+        const token = jwt.sign(
+            userForToken,
+            process.env.SECRET,
+            { expiresIn: 3600 }
+        )
+        
+        validUserToken = token
     })
 
-    test.only('creation succeeds with a new username', async () => {
+    test('creation succeeds with a new username', async () => {
         
         // Note that the funciton is asynchronous
         const usersAtStart = await helper.usersInDb()
@@ -36,7 +52,7 @@ describe('when there is initially one user in db', () => {
             password: "123"
         }
 
-        await api.post('/api/users').send(newUser).expect(201).expect('Content-Type', /application\/json/)
+        await api.post('/api/users').send(newUser).expect(201).expect('Content-Type', /application\/json/).set('Authorization', `Bearer ${validUserToken}`)
 
         // Note that the funciton is asynchronous
         const usersAtEnd = await helper.usersInDb()
@@ -48,25 +64,25 @@ describe('when there is initially one user in db', () => {
         assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
     })
 
-    test('if username is taken, do not add the new user', async () => {
+    test.only('if username is taken, do not add the new user', async () => {
         
         // Note that the funciton is asynchronous
         const usersAtStart = await helper.usersInDb()
 
         // Note that for api interactions, we send a normal object
         const newUser = {
-            username: "root",
-            name: "zhelin wang",
-            password: "123"
+            username: 'test user',
+            name: 'test user name',
+            password: await bcrypt.hash('testpassword', 10)
         }
 
-        const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+        const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/).set('Authorization', `Bearer ${validUserToken}`)
 
         // Note that the funciton is asynchronous
         const usersAtEnd = await helper.usersInDb()
 
         console.log('usersAtEnd are: ', usersAtEnd)
-        const usernames = usersAtEnd.map(u => u.username)
+        console.log('result body error', result.body.error)
 
         assert(result.body.error.includes('expected `username` to be unique'))
         assert.strictEqual(usersAtEnd.length, usersAtStart.length)
@@ -84,11 +100,12 @@ describe('when there is initially one user in db', () => {
             password: "123"
         }
 
-        const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+        const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/).set('Authorization', `Bearer ${validUserToken}`)
 
         // Note that the funciton is asynchronous
         const usersAtEnd = await helper.usersInDb()
 
+        
         assert(result.body.error.includes('username must be at least 3 characters long'))
         assert.strictEqual(usersAtEnd.length, usersAtStart.length)
     })
@@ -105,7 +122,7 @@ describe('when there is initially one user in db', () => {
             password: "12"
         }
 
-        const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/)
+        const result = await api.post('/api/users').send(newUser).expect(400).expect('Content-Type', /application\/json/).set('Authorization', `Bearer ${validUserToken}`)
 
         const usersAtEnd = await helper.usersInDb()
         

@@ -5,14 +5,46 @@ const supertest = require('supertest')
 const assert = require('node:assert')
 const Blog = require('../models/blog')
 const helper = require('../utils/list_helper')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
 const api = supertest(app)
 
+let validUserToken
+
 beforeEach(async () => {
   await Blog.deleteMany({})
+  await User.deleteMany({})
 
+  // Create a test user
+  const testUser = new User({
+    username: 'test user',
+    name: 'test user name',
+    passwordHash: await bcrypt.hash('testpassword', 10)
+  })
+  
+  // Save test user into db
+  const savedUser = await testUser.save()
+
+  // Generate a JWT token for the test user that we can use in the tests
+  const userForToken = {
+    username: savedUser.username,
+    id: savedUser._id,
+    name: savedUser.name
+  }
+
+  const token = jwt.sign(
+    userForToken,
+    process.env.SECRET,
+    { expiresIn: 3600 }
+  )
+  
+  validUserToken = token
+
+  // Use helper to generate blogs, assigning our created user to them.
   for (let blog of helper.initialBlogs) {
-    let blogObject = new Blog(blog)
+    let blogObject = new Blog({...blog, user: savedUser._id })
     await blogObject.save()
   }
 })
@@ -20,17 +52,17 @@ beforeEach(async () => {
 test('blogs are returned as json', async () => {
   await api.get('/api/blogs')
   .expect(200)
+  .set('Authorization', `Bearer ${validUserToken}`) // Unlike sessions which store login state, JWT requires tokens to be sent in every request
   .expect('Content-Type', /application\/json/)
 })
 
 test('there are two blogs', async () => {
-  const response = await api.get('/api/blogs')
-
+  const response = await api.get('/api/blogs').set('Authorization', `Bearer ${validUserToken}`)
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
 })
 
 test('first author is called Michael Chan"', async () => {
-  const response = await api.get('/api/blogs')
+  const response = await api.get('/api/blogs').set('Authorization', `Bearer ${validUserToken}`)
   const author = response.body.map(e => e.author)
   console.log(author)
   assert(author[0].includes('Michael Chan'))
@@ -45,7 +77,7 @@ test('a valid blog can be added', async () => {
     url: 'https://ayechanzaw.com/gpt-4o',
   }
 
-  await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
+  await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/).set('Authorization', `Bearer ${validUserToken}`)
 
   const blogsAtEnd = await helper.blogsInDb()
   assert.strictEqual(blogsAtEnd.length, blogsAtStart.length + 1)
@@ -64,7 +96,7 @@ test('blog without title is not added', async () => {
     author: "Aye Chan Zaw"
   }
 
-  await api.post('/api/blogs').send(newBlog).expect(400)
+  await api.post('/api/blogs').send(newBlog).expect(400).set('Authorization', `Bearer ${validUserToken}`)
 
   const blogsAtEnd = await helper.blogsInDb()
 
@@ -80,7 +112,7 @@ test('blog without url is not added', async () => {
     author: "Aye Chan Zaw"
   }
 
-  await api.post('/api/blogs').send(newBlog).expect(400)
+  await api.post('/api/blogs').send(newBlog).expect(400).set('Authorization', `Bearer ${validUserToken}`)
 
   const blogsAtEnd = await helper.blogsInDb()
 
@@ -106,7 +138,7 @@ test('If likes property missing, return value 0', async () => {
     title: "How to prompt gpt-4o for defect detection"
 
   }
-  await api.post('/api/blogs').send(newBlog).expect(201)
+  await api.post('/api/blogs').send(newBlog).expect(201).set('Authorization', `Bearer ${validUserToken}`)
 
   const blogsAtEnd = await helper.blogsInDb()
   const addedBlog = blogsAtEnd[0]
@@ -119,7 +151,7 @@ test('a blog can be deleted', async () => {
   const blogToDelete = blogsAtStart[0]
   console.log('blog to delete', blogToDelete)
 
-  await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+  await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204).set('Authorization', `Bearer ${validUserToken}`)
 
   const blogsAtEnd = await helper.blogsInDb()
   const titles = blogsAtEnd.map(r => r.title)
@@ -138,7 +170,7 @@ test('a blog can be updated', async () => {
     url: 'https://ayechanzaw.com/gpt-4o'
   }
   
-  await api.put(`/api/blogs/${blogToUpdate.id}`, newBlog).expect(200)
+  await api.put(`/api/blogs/${blogToUpdate.id}`, newBlog).expect(200).set('Authorization', `Bearer ${validUserToken}`)
 
   const blogsAtEnd = await helper.blogsInDb()
 
