@@ -1,5 +1,7 @@
+const blog = require('../models/blog')
 const logger = require('./logger')
 const jwt = require('jsonwebtoken')
+const User = require('../models/user')
 
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
@@ -19,6 +21,26 @@ const tokenExtractor = (request, response, next) => {
     return null
   }
   request.token = getTokenFrom(request)
+  next()
+}
+
+const userExtractor = async (request, response, next) => {
+  // Use the request token and decode it
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  console.log('decoded token is: ', decodedToken)
+  
+  if (!decodedToken) {
+    console.log('there is no token')
+    return response.status(401).json({ error: 'cannot delete with invalid token'})
+  }
+
+  const user = await User.findById(decodedToken.id)
+  console.log('user object is', user)
+  if (!user) {
+    return response.status(401).json({ error: 'user does not exist in the database'})
+  }
+
+  request.user = user
   next()
 }
 
@@ -49,5 +71,6 @@ module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor
+  tokenExtractor,
+  userExtractor
 }

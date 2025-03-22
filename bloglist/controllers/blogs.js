@@ -9,26 +9,19 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response, next) => {
-  const body = request.body
-  // header, payload, signature makes up jwt, so secret is needed
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    console.log('there is no token')
-    return response.status(401).json({ error: 'cannot post with invalid token'})
-  }
 
-  const user = await User.findById(decodedToken.id) // Only users can make posts now, so we expect userId to be provided
+  const body = request.body
 
   const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
-    user: user.id
+    user: request.user._id
   })
 
   const savedBlog = await blog.save() // Assign to retrieve generated id from mongoose
-  user.blogs = user.blogs.concat(savedBlog._id) // Map back to blog as well
-  await user.save()
+  request.user.blogs = request.user.blogs.concat(savedBlog._id) // Map back to blog as well
+  await request.user.save()
   response.status(201).json(savedBlog)
 
 })
@@ -49,19 +42,10 @@ blogsRouter.post('/', async (request, response, next) => {
 
 blogsRouter.delete('/:id', async (request, response, next) => {
 
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  console.log('decoded token is: ', decodedToken)
-
-  if (!decodedToken) {
-    console.log('there is no token')
-    return response.status(401).json({ error: 'cannot delete with invalid token'})
-  }
-
-  console.log('request inside is', request.params.id)
   const blog = await Blog.findById(request.params.id)
   console.log(blog)
   
-  if ( blog.user.toString() === decodedToken.id) {
+  if (blog.user.toString() === request.user._id.toString()) {
     await Blog.findByIdAndDelete(request.params.id.toString())
   } else {
     return response.status(401).json({ error: 'wrong user, invalid delete operation'})
