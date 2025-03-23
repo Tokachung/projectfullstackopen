@@ -29,7 +29,7 @@ app.use(cors())
 app.use(express.json())
 app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor) // must come before routes that use them
-app.use(middleware.userExtractor, blogsRouter)
+app.use('/api/blogs', middleware.userExtractor, blogsRouter)
 
 app.use('/api/blogs', blogsRouter)
 app.use('/api/login', loginRouter)
