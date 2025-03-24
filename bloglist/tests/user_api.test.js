@@ -16,9 +16,9 @@ describe('when there is initially one user in db', () => {
 
         // Create a test user
         const testUser = new User({
-            username: 'test user',
-            name: 'test user name',
-            passwordHash: await bcrypt.hash('testpassword', 10)
+            username: 'admin',
+            name: 'admin user name',
+            passwordHash: await bcrypt.hash('password', 10)
         })
         
         // Save test user into db

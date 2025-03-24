@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Notification from './components/Notification'
 
 
 const App = () => {
-
-
   const [blogs, setBlogs] = useState([])
   const [newBlog, setNewBlog] = useState('a new blog...')
   const [username, setUsername] = useState('') 
@@ -23,7 +22,7 @@ const App = () => {
       })
 
       window.localStorage.setItem(
-        'loggedNoteappUser', JSON.stringify(user)
+        'loggedBlogappUser', JSON.stringify(user)
       )
 
       blogService.setToken(user.token)
@@ -97,9 +96,15 @@ const App = () => {
     <div>
       <h2>blogs</h2>
 
-      {loginForm()}
-      {user !== null && blogForm()}
+      <Notification message={errorMessage} />
 
+      {user === null ? 
+        loginForm() : 
+        <div>
+          <p>{user.name} logged-in</p>
+          {blogForm()}
+        </div>  
+      } 
 
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />

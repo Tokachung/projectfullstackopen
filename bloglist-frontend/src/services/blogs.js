@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3000/api/blogs'
+const baseUrl = 'http://localhost:3002/api/blogs'
 
 // Private variable to store JWT token for authentication
 let token = null
