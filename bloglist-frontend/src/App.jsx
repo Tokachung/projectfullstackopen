@@ -39,6 +39,18 @@ const App = () => {
     }
   }
 
+  const handleLogout = async (event) => {
+    event.preventDefault()
+    blogService.setToken(null)
+    setUser(null)
+
+    window.localStorage.setItem(
+      'loggedBlogappUser', ''
+    )
+
+    blogService.setToken(null)
+  }
+
   const loginForm = () => {
     return (
       <form onSubmit={handleLogin}>
@@ -90,6 +102,7 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
+
   
   return (
     <div>
@@ -101,6 +114,7 @@ const App = () => {
         loginForm() : 
         <div>
           <p>{user.name} logged-in</p>
+          <button onClick={handleLogout}>Log out</button>
           {blogForm()}
         </div>  
       } 
