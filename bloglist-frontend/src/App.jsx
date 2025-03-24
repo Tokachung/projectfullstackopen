@@ -4,7 +4,6 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 
-
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [newBlog, setNewBlog] = useState('a new blog...')
