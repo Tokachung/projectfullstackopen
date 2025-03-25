@@ -1,20 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
+import LoginForm from './components/LoginForm'
+import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [newBlog, setNewBlog] = useState('')
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
-  const [username, setUsername] = useState('') 
+  const [username, setUsername] = useState(null) 
   const [password, setPassword] = useState('')
   const [user, setUser] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
+
+  const blogFormRef = useRef()
 
   const handleLogin = async (event) => {
     event.preventDefault() // By default, this would cause page to reload due to default for form submission
@@ -38,6 +39,8 @@ const App = () => {
       setUsername('')
       setPassword('')
       setErrorMessage(null)
+      setSuccessMessage(null)
+      
     } catch (exception) {
       setErrorMessage('Wrong username or password')
       setSuccessMessage(null)
@@ -47,18 +50,10 @@ const App = () => {
     }
   }
 
-  const addBlog = (event) => {
-    event.preventDefault()
-
-    const blogObject = {
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl
-    }
-
+  const addBlog = (blogObject) => {
+    blogFormRef.current.toggleVisibility()
     blogService.create(blogObject).then(returnedBlog => {
       setBlogs(blogs.concat(returnedBlog))
-      setNewBlog('')
       setSuccessMessage(`a new blog ${returnedBlog.title} by ${user.name} added`)
       setErrorMessage(null)
     })
@@ -79,59 +74,26 @@ const App = () => {
   }
 
   const loginForm = () => {
+
     return (
-      <form onSubmit={handleLogin}>
-        <div>
-          username:
-          <input type="text" 
-            value={username} 
-            name="Username" 
-            onChange={({ target }) => setUsername(target.value)}/>
-        </div>
-        <div>
-          password:
-          <input type="password" 
-          value={password} 
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}/>
-        </div>
-        <button type="submit">login</button>
-      </form>
+      <Togglable buttonLabel='login'>
+        <LoginForm
+          handleSubmit={handleLogin}
+          handleUsernameChange={({ target }) => setUsername(target.value)}
+          handlePasswordChange={({ target }) => setPassword(target.value)}
+          username={username}
+          password={password}
+        />
+      </Togglable>
     )
-  }
-
-  const handleAuthorChange = (event) => {
-    setNewAuthor(event.target.value)
-  }
-
-  const handleTitleChange = (event) => {
-    setNewTitle(event.target.value)
-  }
-
-  const handleUrlChange = (event) => {
-    console.log(event.target)
-    setNewUrl(event.target.value)
   }
 
   const blogForm = () => {
     return (
     <div>
-      <h1>create new</h1>
-      <form onSubmit={addBlog}>
-        <div>
-          title:
-          <input value={newTitle} onChange={handleTitleChange}/>
-        </div>
-        <div>
-          author:
-          <input value={newAuthor} onChange={handleAuthorChange} />
-        </div>
-        <div>
-          url:
-          <input value={newUrl} onChange={handleUrlChange} />
-        </div>
-        <button type="submit">create</button>
-      </form>
+      <Togglable buttonLabel='new blog' ref={blogFormRef}>
+        <BlogForm createBlog={addBlog}></BlogForm>
+      </Togglable>
     </div>
     )
   }
