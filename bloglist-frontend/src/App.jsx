@@ -6,7 +6,10 @@ import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [newBlog, setNewBlog] = useState('a new blog...')
+  const [newBlog, setNewBlog] = useState('')
+  const [newTitle, setNewTitle] = useState('')
+  const [newAuthor, setNewAuthor] = useState('')
+  const [newUrl, setNewUrl] = useState('')
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('')
   const [user, setUser] = useState('')
@@ -27,10 +30,12 @@ const App = () => {
       blogService.setToken(user.token)
       console.log('user is ', user)
       setUser(user)
+      console.log('user is', user)
 
       // clear form
       setUsername('')
       setPassword('')
+      setErrorMessage(null)
     } catch (exception) {
       setErrorMessage('Wrong credentials')
       setTimeout(() => {
@@ -39,16 +44,36 @@ const App = () => {
     }
   }
 
+  const addBlog = (event) => {
+    event.preventDefault()
+
+    const blogObject = {
+      title: newTitle,
+      author: newAuthor,
+      url: newUrl
+    }
+
+    blogService.create(blogObject).then(returnedBlog => {
+      setBlogs(blogs.concat(returnedBlog))
+      setNewBlog('')
+    })
+  }
+
   const handleLogout = async (event) => {
     event.preventDefault()
     blogService.setToken(null)
     setUser(null)
 
-    window.localStorage.setItem(
-      'loggedBlogappUser', ''
-    )
+    window.localStorage.removeItem('loggedBlogappUser')
+
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+    console.log('just logged out, loggedUser is', loggedUserJSON)
+
+    console.log()
 
     blogService.setToken(null)
+
+    setErrorMessage('Log out successful.')
   }
 
   const loginForm = () => {
@@ -78,31 +103,77 @@ const App = () => {
     setNewBlog(event.target.value)
   }
 
+  const handleAuthorChange = (event) => {
+    console.log(event.target)
+    setNewAuthor(event.target.value)
+  }
+
+  const handleTitleChange = (event) => {
+    console.log(event.target)
+    setNewTitle(event.target.value)
+  }
+
+  const handleUrlChange = (event) => {
+    console.log(event.target)
+    setNewUrl(event.target.value)
+  }
+
   const blogForm = () => {
     return (
-    <form>
-      <input value={newBlog} 
-      onChange={handleBlogChange}/>
-      <button type="submit">save</button>
-    </form>
+    <div>
+      <h1>create new</h1>
+      <form onSubmit={addBlog}>
+        <div>
+          title:
+          <input value={newTitle} onChange={handleTitleChange}/>
+        </div>
+        <div>
+          author:
+          <input value={newAuthor} onChange={handleAuthorChange} />
+        </div>
+        <div>
+          url:
+          <input value={newUrl} onChange={handleUrlChange} />
+        </div>
+        
+        <button type="submit">create</button>
+      </form>
+    </div>
     )
   }
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    ) .catch(error => {
+      if (error.response && error.response.status === 401) {
+        setErrorMessage("Please log in to view the blogs")
+
+      } else {
+        setErrorMessage('Failed to fetch blogs.')
+      }
+    })
   }, [])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+    console.log('loggedUserJSON', loggedUserJSON)
+    if (loggedUserJSON && loggedUserJSON !== null) {
+      try {
+          
+        const user = JSON.parse(loggedUserJSON)
+        setUser(user)
+        blogService.setToken(user.token)
+      } catch (error) {
+        console.error("Could not correctly parse user from local storage", error);
+        setUser(null)
+        blogService.setToken(null)
+      }
+    } else {
+      setUser(null)
+      blogService.setToken(null)
     }
   }, [])
-
   
   return (
     <div>
