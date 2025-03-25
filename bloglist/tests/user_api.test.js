@@ -56,8 +56,6 @@ describe('when there is initially one user in db', () => {
 
         // Note that the funciton is asynchronous
         const usersAtEnd = await helper.usersInDb()
-
-        console.log('usersAtEnd are: ', usersAtEnd)
         const usernames = usersAtEnd.map(u => u.username)
 
         assert(usernames.includes(newUser.username))
@@ -80,9 +78,6 @@ describe('when there is initially one user in db', () => {
 
         // Note that the funciton is asynchronous
         const usersAtEnd = await helper.usersInDb()
-
-        console.log('usersAtEnd are: ', usersAtEnd)
-        console.log('result body error', result.body.error)
 
         assert(result.body.error.includes('expected `username` to be unique'))
         assert.strictEqual(usersAtEnd.length, usersAtStart.length)

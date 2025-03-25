@@ -14,7 +14,6 @@ usersRouter.post('/', async (request, response, next) => {
 
     // Validate password length
     if (!password || password.length < 3) {
-        console.log('password is: ', password)
         return response.status(400).json({ error: "password must be at least 3 characters long"})
     }
 
@@ -23,8 +22,6 @@ usersRouter.post('/', async (request, response, next) => {
         return response.status(400).json({ error: "username must be at least 3 characters long"})
     }
 
-    let test_password = await bcrypt.hash(password, 10)
-    console.log('test password is: ', test_password)
     // Create a user object using Mongoose Schema
     const user = new User ({
         username: username,
@@ -32,8 +29,6 @@ usersRouter.post('/', async (request, response, next) => {
         passwordHash: await bcrypt.hash(password, 10)
     })
 
-    console.log('user is', user)
-    
     // Save user into the database and return Mongoose object
     const savedUser = await user.save()
 

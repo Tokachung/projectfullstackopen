@@ -14,6 +14,7 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
 
   const handleLogin = async (event) => {
     event.preventDefault() // By default, this would cause page to reload due to default for form submission
@@ -28,16 +29,18 @@ const App = () => {
       )
 
       blogService.setToken(user.token)
-      console.log('user is ', user)
-      setUser(user)
-      console.log('user is', user)
 
-      // clear form
+      setUser(user)
+      blogService.getAll().then(blogs => {
+        setBlogs(blogs)
+      })
+
       setUsername('')
       setPassword('')
       setErrorMessage(null)
     } catch (exception) {
-      setErrorMessage('Wrong credentials')
+      setErrorMessage('Wrong username or password')
+      setSuccessMessage(null)
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -56,6 +59,8 @@ const App = () => {
     blogService.create(blogObject).then(returnedBlog => {
       setBlogs(blogs.concat(returnedBlog))
       setNewBlog('')
+      setSuccessMessage(`a new blog ${returnedBlog.title} by ${user.name} added`)
+      setErrorMessage(null)
     })
   }
 
@@ -66,14 +71,11 @@ const App = () => {
 
     window.localStorage.removeItem('loggedBlogappUser')
 
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    console.log('just logged out, loggedUser is', loggedUserJSON)
-
-    console.log()
-
+    setBlogs([])
     blogService.setToken(null)
 
-    setErrorMessage('Log out successful.')
+    setSuccessMessage('Log out successful.')
+    setErrorMessage(null)
   }
 
   const loginForm = () => {
@@ -98,18 +100,11 @@ const App = () => {
     )
   }
 
-  const handleBlogChange = (event) => {
-    console.log(event.target)
-    setNewBlog(event.target.value)
-  }
-
   const handleAuthorChange = (event) => {
-    console.log(event.target)
     setNewAuthor(event.target.value)
   }
 
   const handleTitleChange = (event) => {
-    console.log(event.target)
     setNewTitle(event.target.value)
   }
 
@@ -135,7 +130,6 @@ const App = () => {
           url:
           <input value={newUrl} onChange={handleUrlChange} />
         </div>
-        
         <button type="submit">create</button>
       </form>
     </div>
@@ -144,13 +138,15 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      setBlogs(blogs)
     ) .catch(error => {
       if (error.response && error.response.status === 401) {
         setErrorMessage("Please log in to view the blogs")
+        setSuccessMessage(null)
 
       } else {
         setErrorMessage('Failed to fetch blogs.')
+        setSuccessMessage(null)
       }
     })
   }, [])
@@ -174,12 +170,13 @@ const App = () => {
       blogService.setToken(null)
     }
   }, [])
-  
+
   return (
     <div>
       <h2>blogs</h2>
 
-      <Notification message={errorMessage} />
+      <Notification message={errorMessage} type="success" />
+      <Notification message={successMessage} type="error" />
 
       {user === null ? 
         loginForm() : 
