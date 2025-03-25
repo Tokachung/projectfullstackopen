@@ -27,6 +27,7 @@ const tokenExtractor = (request, response, next) => {
 const userExtractor = async (request, response, next) => {
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
   console.log('decoded token is: ', decodedToken)
+  console.log('running user extractor')
   
   if (!decodedToken) {
     console.log('there is no token')
@@ -40,6 +41,7 @@ const userExtractor = async (request, response, next) => {
   }
 
   request.user = user
+  console.log('request.user is', user)
   next()
 }
 

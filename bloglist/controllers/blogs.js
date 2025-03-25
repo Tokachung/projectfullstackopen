@@ -4,13 +4,20 @@ const User = require('../models/user') // Add user to blogs router
 const jwt = require('jsonwebtoken') // Add jwt logic to modify who can modify db
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1})
-  response.json(blogs)
+  if (request.user == null) {
+    response.status(401).json({ message: 'user is not logged in'})
+  }
+  else {
+    const blogs = await Blog.find({}).populate('user', { username: 1, name: 1})
+    response.json(blogs)
+  }
 })
 
 blogsRouter.post('/', async (request, response, next) => {
 
   const body = request.body
+
+  console.log('request is', request.token)
 
   const blog = new Blog({
     title: body.title,
