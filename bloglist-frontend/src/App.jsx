@@ -9,9 +9,9 @@ import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState(null) 
+  const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState('')
+  const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
 
@@ -99,24 +99,30 @@ const App = () => {
   }
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs(blogs)
-    ) .catch(error => {
-      if (error.response && error.response.status === 401) {
-        setErrorMessage("Please log in to view the blogs")
-        setSuccessMessage(null)
+    if (!user) {
+      setErrorMessage("Please log in to view the blogs")
+      setSuccessMessage(null)
+    } else {
+      blogService.getAll().then(blogs =>
+        setBlogs(blogs)
+      ) .catch(error => {
+        if (error.response && error.response.status === 401) {
+          setErrorMessage("Please log in to view the blogs")
+          setSuccessMessage(null)
 
-      } else {
-        setErrorMessage('Failed to fetch blogs.')
-        setSuccessMessage(null)
-      }
-    })
-  }, [])
+        } else {
+          setErrorMessage('Failed to fetch blogs.')
+          setSuccessMessage(null)
+        }
+      })
+    }
+
+  }, [user])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    console.log('loggedUserJSON', loggedUserJSON)
-    if (loggedUserJSON && loggedUserJSON !== null) {
+
+    if (loggedUserJSON) {
       try {
           
         const user = JSON.parse(loggedUserJSON)
@@ -137,8 +143,8 @@ const App = () => {
     <div>
       <h2>blogs</h2>
 
-      <Notification message={errorMessage} type="success" />
-      <Notification message={successMessage} type="error" />
+      <Notification message={errorMessage} type="error" />
+      <Notification message={successMessage} type="success" />
 
       {user === null ? 
         loginForm() : 
