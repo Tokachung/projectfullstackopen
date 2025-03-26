@@ -29,12 +29,10 @@ const userExtractor = async (request, response, next) => {
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
   if (!decodedToken) {
-    console.log('there is no token')
     return response.status(401).json({ error: 'cannot delete with invalid token'})
   }
 
   const user = await User.findById(decodedToken.id)
-  console.log('user object is', user)
   if (!user) {
     return response.status(401).json({ error: 'user does not exist in the database'})
   }

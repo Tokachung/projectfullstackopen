@@ -7,7 +7,6 @@ let token = null
 // Function to update the token for making authenticated requests
 const setToken = newToken => {
   token = `Bearer ${newToken}`
-  console.log('the token to update was', token)
 }
 
 const getAll = () => {
@@ -28,7 +27,6 @@ const update = (id, newObject) => {
   const config = {headers: {Authorization: token}}
   
   const request = axios.put(`${baseUrl}/${id}`, newObject, config)
-  console.log('axios request is', request)
   return request.then(response => response.data)
 }
 

@@ -64,7 +64,6 @@ test('there are two blogs', async () => {
 test('first author is called Michael Chan"', async () => {
   const response = await api.get('/api/blogs').set('Authorization', `Bearer ${validUserToken}`)
   const author = response.body.map(e => e.author)
-  console.log(author)
   assert(author[0].includes('Michael Chan'))
 })
 
@@ -121,7 +120,6 @@ test('blog without url is not added', async () => {
 
 test('when blogs are added and then retrieved, we retrieve the id field and not the _id field', async () => {
   const blogsAtStart = await helper.blogsInDb()
-  console.log(blogsAtStart)
 
   blogsAtStart.forEach((blog) => {
     assert.ok(blog.id, 'Blog should have id property')
@@ -149,7 +147,6 @@ test('If likes property missing, return value 0', async () => {
 test('a blog can be deleted', async () => {
   const blogsAtStart = await helper.blogsInDb()
   const blogToDelete = blogsAtStart[0]
-  console.log('blog to delete', blogToDelete)
 
   await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204).set('Authorization', `Bearer ${validUserToken}`)
 

@@ -5,7 +5,6 @@ const Blog = ({ blog }) => {
 
   const [visibleDetails, setVisibleDetails] = useState(false)
   const [localBlog, setLocalBlog] = useState(blog)
-  // const user = useUser()
 
   const toggleVisibility = () => {
     setVisibleDetails(!visibleDetails)
@@ -20,25 +19,16 @@ const Blog = ({ blog }) => {
   }
 
   const doSomething = async (blogObject) => { // Added async keyword
-    console.log('do something');
-    console.log(blogObject);
   
     let updatedBlogObject = {
       ...blogObject,
       likes: blogObject.likes + 1,
     };
   
-    console.log('object is', updatedBlogObject);
-    // blogService.setToken(user.token);
-    // console.log('user token is', user.token);
-    console.log('blog is', blog);
-  
     try {
       const returnedBlog = await blogService.update(blog.id, updatedBlogObject); // Added await keyword
       setLocalBlog(returnedBlog);
     } catch (error) {
-      console.log('could not like blog', error);
-      // Potentially add error handling, such as displaying an error message to the user.
     }
   };
 

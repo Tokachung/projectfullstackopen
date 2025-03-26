@@ -58,10 +58,7 @@ blogsRouter.delete('/:id', async (request, response, next) => {
 
 blogsRouter.put('/:id', async (request, response, next) => {
   const body = request.body;
-
-  console.log('user is', request.user);
-  console.log('tfdfdoken is', request.user.token);
-
+  
   const blog = {
     url: body.url,
     author: body.author,
