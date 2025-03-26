@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3000/api/blogs'
+const baseUrl = 'http://localhost:3002/api/blogs'
 
 // Private variable to store JWT token for authentication
 let token = null
@@ -7,6 +7,7 @@ let token = null
 // Function to update the token for making authenticated requests
 const setToken = newToken => {
   token = `Bearer ${newToken}`
+  console.log('the token to update was', token)
 }
 
 const getAll = () => {
@@ -24,7 +25,10 @@ const create = async newObject => {
 }
 
 const update = (id, newObject) => {
-  const request = axios.put(`${baseUrl}/${id}`, newObject)
+  const config = {headers: {Authorization: token}}
+  
+  const request = axios.put(`${baseUrl}/${id}`, newObject, config)
+  console.log('axios request is', request)
   return request.then(response => response.data)
 }
 

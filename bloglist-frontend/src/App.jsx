@@ -5,7 +5,7 @@ import loginService from './services/login'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import Togglable from './components/Togglable'
-import BlogForm from './components/BlogForm'
+import BlogForm from './components/BlogForm' 
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -19,7 +19,6 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault() // By default, this would cause page to reload due to default for form submission
-
     try {
       const user = await loginService.login({
         username, password // From the useState variable
@@ -74,7 +73,6 @@ const App = () => {
   }
 
   const loginForm = () => {
-
     return (
       <Togglable buttonLabel='login'>
         <LoginForm
@@ -140,25 +138,27 @@ const App = () => {
   }, [])
 
   return (
-    <div>
-      <h2>blogs</h2>
+    //<UserProvider user={user}>
+      <div>
+        <h2>blogs</h2>
 
-      <Notification message={errorMessage} type="error" />
-      <Notification message={successMessage} type="success" />
+        <Notification message={errorMessage} type="error" />
+        <Notification message={successMessage} type="success" />
 
-      {user === null ? 
-        loginForm() : 
-        <div>
-          <p>{user.name} logged-in</p>
-          <button onClick={handleLogout}>Log out</button>
-          {blogForm()}
-        </div>  
-      } 
+        {user === null ? 
+          loginForm() : 
+          <div>
+            <p>{user.name} logged-in</p>
+            <button onClick={handleLogout}>Log out</button>
+            {blogForm()}
+          </div>  
+        } 
 
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
-    </div>
+        {blogs.map(blog =>
+          <Blog key={blog.id} blog={blog} />
+        )}
+      </div>
+    //</UserProvider>
   )
 }
 

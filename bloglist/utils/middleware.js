@@ -12,6 +12,7 @@ const requestLogger = (request, response, next) => {
 }
 
 const tokenExtractor = (request, response, next) => {
+  console.log('for extraction', request.get('authorization'))
   // Callback function to extract token
   const getTokenFrom = request => {
     const authorization = request.get('authorization')
