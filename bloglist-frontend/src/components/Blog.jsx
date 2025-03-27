@@ -1,10 +1,8 @@
 import { useState } from 'react'
-import blogService from '../services/blogs'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, removeBlog, likeBlog }) => {
 
   const [visibleDetails, setVisibleDetails] = useState(false)
-  const [localBlog, setLocalBlog] = useState(blog)
 
   const toggleVisibility = () => {
     setVisibleDetails(!visibleDetails)
@@ -18,37 +16,19 @@ const Blog = ({ blog }) => {
     marginBottom: 5
   }
 
-  const doSomething = async (blogObject) => { // Added async keyword
-  
-    let updatedBlogObject = {
-      ...blogObject,
-      likes: blogObject.likes + 1,
-    };
-
-    console.log('blog is', blog)
-  
-    try {
-      const returnedBlog = await blogService.update(blog.id, updatedBlogObject); // Added await keyword
-      setLocalBlog(returnedBlog);
-      console.log('returned blog is', returnedBlog)
-    } catch (error) {
-    }
-  };
-
-
   return (
-  
   <div style={blogStyle}>
-    <p>Title: {localBlog.title}</p>
-    <p>Author: {localBlog.author}</p>
-    <p>Upload: {localBlog.user.name}</p>
+    <p>Title: {blog.title}</p>
+    <p>Author: {blog.author}</p>
+    <p>Upload: {blog.user.name}</p>
 
     <button onClick={toggleVisibility}>view</button>
     {visibleDetails && (
       <div>
-      <p>{localBlog.url}</p>
+      <p>{blog.url}</p>
         <div style={{display:'flex', alignItems:'center'}}>
-          <p>{localBlog.likes}</p><button onClick={() => doSomething(localBlog)}>LIKE</button>
+          <p>{blog.likes}</p><button onClick={() => likeBlog(blog)}>Like</button>
+          <button onClick={() => removeBlog(blog.id)}>Remove</button>
         </div>
       </div>
     )}

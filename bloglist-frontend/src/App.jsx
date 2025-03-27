@@ -36,7 +36,7 @@ const App = () => {
       blogService.setToken(user.token)
 
       setUser(user)
-      blogService.getAll().then(blogs => {
+      blogService.getAllBlogs().then(blogs => {
         setBlogs(blogs)
       })
 
@@ -56,7 +56,7 @@ const App = () => {
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility()
-    blogService.create(blogObject).then(returnedBlog => {
+    blogService.createBlog(blogObject).then(returnedBlog => {
       setBlogs(blogs.concat(returnedBlog))
       setSuccessMessage(`a new blog ${returnedBlog.title} by ${user.name} added`)
       setErrorMessage(null)
@@ -106,7 +106,7 @@ const App = () => {
       setErrorMessage("Please log in to view the blogs")
       setSuccessMessage(null)
     } else {
-      blogService.getAll().then(blogs =>
+      blogService.getAllBlogs().then(blogs =>
         setBlogs(sortBlogs(blogs))
         
       ) .catch(error => {
@@ -121,9 +121,7 @@ const App = () => {
       })
     }
 
-
-
-  }, [user])
+  }, [user, blogs])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -144,6 +142,33 @@ const App = () => {
       blogService.setToken(null)
     }
   }, [])
+  
+  const removeBlog = async (blogId) => {
+    try {
+      await blogService.deleteBlog(blogId)
+      setBlogs(blogs.filter(blog => blog.id !== blogId))
+    } catch (error) {
+      console.log('error is', error)
+    }
+  }
+
+  const likeBlog = async (blogObject) => { // Added async keyword
+    let updatedBlogObject = {
+      ...blogObject,
+      likes: blogObject.likes + 1,
+    };
+  
+    try {
+      const returnedBlog = await blogService.updateBlog(blogObject.id, updatedBlogObject); // Added await keyword
+      setBlogs(prevBlogs => 
+        prevBlogs.map(blog => 
+          blog.id === returnedBlog.id ? { ...returnedBlog } : blog
+        )
+      );
+    } catch (error) {
+      console.log('error is', error)
+    }
+  };
 
   return (
     //<UserProvider user={user}>
@@ -163,7 +188,7 @@ const App = () => {
         } 
 
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+          <Blog removeBlog={removeBlog} likeBlog={likeBlog} key={blog.id} blog={blog} />
         )}
       </div>
     //</UserProvider>
