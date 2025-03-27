@@ -24,10 +24,13 @@ const Blog = ({ blog }) => {
       ...blogObject,
       likes: blogObject.likes + 1,
     };
+
+    console.log('blog is', blog)
   
     try {
       const returnedBlog = await blogService.update(blog.id, updatedBlogObject); // Added await keyword
       setLocalBlog(returnedBlog);
+      console.log('returned blog is', returnedBlog)
     } catch (error) {
     }
   };
@@ -36,7 +39,10 @@ const Blog = ({ blog }) => {
   return (
   
   <div style={blogStyle}>
-    {localBlog.title} {localBlog.author}
+    <p>Title: {localBlog.title}</p>
+    <p>Author: {localBlog.author}</p>
+    <p>Upload: {localBlog.user.name}</p>
+
     <button onClick={toggleVisibility}>view</button>
     {visibleDetails && (
       <div>

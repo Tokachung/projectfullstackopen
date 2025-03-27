@@ -17,6 +17,11 @@ const App = () => {
 
   const blogFormRef = useRef()
 
+  const sortBlogs = (blogs) => {
+    const blogsCopy = [...blogs]
+    return blogsCopy.sort((a, b) => b.likes - a.likes)
+  }
+
   const handleLogin = async (event) => {
     event.preventDefault() // By default, this would cause page to reload due to default for form submission
     try {
@@ -102,7 +107,8 @@ const App = () => {
       setSuccessMessage(null)
     } else {
       blogService.getAll().then(blogs =>
-        setBlogs(blogs)
+        setBlogs(sortBlogs(blogs))
+        
       ) .catch(error => {
         if (error.response && error.response.status === 401) {
           setErrorMessage("Please log in to view the blogs")
@@ -114,6 +120,8 @@ const App = () => {
         }
       })
     }
+
+
 
   }, [user])
 

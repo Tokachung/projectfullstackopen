@@ -67,22 +67,14 @@ blogsRouter.put('/:id', async (request, response, next) => {
   };
 
   try {
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true });
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true }).populate('user', { username: 1, name: 1});
 
     if (!updatedBlog) {
-      // Handle the case where the blog with the given ID was not found
       return response.status(404).json({ error: 'Blog not found' });
     }
-
     response.json(updatedBlog);
   } catch (error) {
-    console.error('Error updating blog:', error); // Print the error to the console
-
-    // Send an error response to the client
-    response.status(500).json({ error: 'Internal server error' }); // Or a more specific error message if applicable
-
-    // Optionally, pass the error to the next middleware for further handling
-    // next(error);
+    response.status(500).json({ error: 'Internal server error' });
   }
 });
 

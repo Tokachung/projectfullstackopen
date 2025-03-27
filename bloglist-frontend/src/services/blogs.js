@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3002/api/blogs'
+const baseUrl = '/api/blogs'
 
 // Private variable to store JWT token for authentication
 let token = null
@@ -23,11 +23,13 @@ const create = async newObject => {
   return response.data
 }
 
-const update = (id, newObject) => {
+const update = async (id, newObject) => {
   const config = {headers: {Authorization: token}}
+
   
-  const request = axios.put(`${baseUrl}/${id}`, newObject, config)
-  return request.then(response => response.data)
+  const response = await axios.put(`${baseUrl}/${id}`, newObject, config)
+  console.log('response data', response.data)
+  return response.data
 }
 
 export default { 
