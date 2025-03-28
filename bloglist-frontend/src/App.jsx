@@ -5,11 +5,11 @@ import loginService from './services/login'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import Togglable from './components/Togglable'
-import BlogForm from './components/BlogForm' 
+import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('') 
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
@@ -44,7 +44,7 @@ const App = () => {
       setPassword('')
       setErrorMessage(null)
       setSuccessMessage(null)
-      
+
     } catch (exception) {
       setErrorMessage('Wrong username or password')
       setSuccessMessage(null)
@@ -93,25 +93,25 @@ const App = () => {
 
   const blogForm = () => {
     return (
-    <div>
-      <Togglable buttonLabel='new blog' ref={blogFormRef}>
-        <BlogForm createBlog={addBlog}></BlogForm>
-      </Togglable>
-    </div>
+      <div>
+        <Togglable buttonLabel='new blog' ref={blogFormRef}>
+          <BlogForm createBlog={addBlog}></BlogForm>
+        </Togglable>
+      </div>
     )
   }
 
   useEffect(() => {
     if (!user) {
-      setErrorMessage("Please log in to view the blogs")
+      setErrorMessage('Please log in to view the blogs')
       setSuccessMessage(null)
     } else {
       blogService.getAllBlogs().then(blogs =>
         setBlogs(sortBlogs(blogs))
-        
+
       ) .catch(error => {
         if (error.response && error.response.status === 401) {
-          setErrorMessage("Please log in to view the blogs")
+          setErrorMessage('Please log in to view the blogs')
           setSuccessMessage(null)
 
         } else {
@@ -121,19 +121,20 @@ const App = () => {
       })
     }
 
-  }, [user, blogs])
+  }, [user])
+
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
 
     if (loggedUserJSON) {
       try {
-          
+
         const user = JSON.parse(loggedUserJSON)
         setUser(user)
         blogService.setToken(user.token)
       } catch (error) {
-        console.error("Could not correctly parse user from local storage", error);
+        console.error('Could not correctly parse user from local storage', error)
         setUser(null)
         blogService.setToken(null)
       }
@@ -142,13 +143,17 @@ const App = () => {
       blogService.setToken(null)
     }
   }, [])
-  
+
   const removeBlog = async (blogId) => {
-    try {
-      await blogService.deleteBlog(blogId)
-      setBlogs(blogs.filter(blog => blog.id !== blogId))
-    } catch (error) {
-      console.log('error is', error)
+    let userResponse = confirm('Are you sure you want to do this bro?')
+    console.log('user response is, ', userResponse)
+    if (userResponse) {
+      try {
+        await blogService.deleteBlog(blogId)
+        setBlogs(blogs.filter(blog => blog.id !== blogId))
+      } catch (error) {
+        console.log('error is', error)
+      }
     }
   }
 
@@ -156,42 +161,40 @@ const App = () => {
     let updatedBlogObject = {
       ...blogObject,
       likes: blogObject.likes + 1,
-    };
-  
+    }
+
     try {
-      const returnedBlog = await blogService.updateBlog(blogObject.id, updatedBlogObject); // Added await keyword
-      setBlogs(prevBlogs => 
-        prevBlogs.map(blog => 
+      const returnedBlog = await blogService.updateBlog(blogObject.id, updatedBlogObject) // Added await keyword
+      setBlogs(prevBlogs =>
+        prevBlogs.map(blog =>
           blog.id === returnedBlog.id ? { ...returnedBlog } : blog
         )
-      );
+      )
     } catch (error) {
       console.log('error is', error)
     }
-  };
+  }
 
   return (
-    //<UserProvider user={user}>
-      <div>
-        <h2>blogs</h2>
+    <div>
+      <h2>blogs</h2>
 
-        <Notification message={errorMessage} type="error" />
-        <Notification message={successMessage} type="success" />
+      <Notification message={errorMessage} type="error" />
+      <Notification message={successMessage} type="success" />
 
-        {user === null ? 
-          loginForm() : 
-          <div>
-            <p>{user.name} logged-in</p>
-            <button onClick={handleLogout}>Log out</button>
-            {blogForm()}
-          </div>  
-        } 
+      {user === null ?
+        loginForm() :
+        <div>
+          <p>{user.name} logged-in</p>
+          <button onClick={handleLogout}>Log out</button>
+          {blogForm()}
+        </div>
+      }
 
-        {blogs.map(blog =>
-          <Blog removeBlog={removeBlog} likeBlog={likeBlog} key={blog.id} blog={blog} />
-        )}
-      </div>
-    //</UserProvider>
+      {blogs.map(blog =>
+        <Blog removeBlog={removeBlog} likeBlog={likeBlog} key={blog.id} blog={blog} />
+      )}
+    </div>
   )
 }
 

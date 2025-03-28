@@ -10,30 +10,30 @@ const setToken = newToken => {
 }
 
 const getAllBlogs = async () => {
-  const config = {headers: {Authorization: token}}
+  const config = { headers: { Authorization: token } }
   const response = await axios.get(baseUrl, config)
   return response.data
 }
 
 const createBlog = async newObject => {
-  const config = {headers: {Authorization: token}}
+  const config = { headers: { Authorization: token } }
   const response = await axios.post(baseUrl, newObject, config) // now also pass config through
   return response.data
 }
 
 const updateBlog = async (id, newObject) => {
-  const config = {headers: {Authorization: token}}
+  const config = { headers: { Authorization: token } }
   const response = await axios.put(`${baseUrl}/${id}`, newObject, config)
   console.log('response data', response.data)
   return response.data
 }
 
 const deleteBlog = async (id) => {
-  const config = {headers: {Authorization: token}}
+  const config = { headers: { Authorization: token } }
   const response = await axios.delete(`${baseUrl}/${id}`, config)
   return response.data
 }
 
-export default { 
+export default {
   getAllBlogs, createBlog, updateBlog, deleteBlog, setToken
 }

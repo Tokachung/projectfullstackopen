@@ -17,23 +17,23 @@ const Blog = ({ blog, removeBlog, likeBlog }) => {
   }
 
   return (
-  <div style={blogStyle}>
-    <p>Title: {blog.title}</p>
-    <p>Author: {blog.author}</p>
-    <p>Upload: {blog.user.name}</p>
+    <div style={blogStyle}>
+      <p>Title: {blog.title}</p>
+      <p>Author: {blog.author}</p>
+      <p>Upload: {blog.user.name}</p>
 
-    <button onClick={toggleVisibility}>view</button>
-    {visibleDetails && (
-      <div>
-      <p>{blog.url}</p>
-        <div style={{display:'flex', alignItems:'center'}}>
-          <p>{blog.likes}</p><button onClick={() => likeBlog(blog)}>Like</button>
-          <button onClick={() => removeBlog(blog.id)}>Remove</button>
+      <button onClick={toggleVisibility}>view</button>
+      {visibleDetails && (
+        <div>
+          <p>{blog.url}</p>
+          <div style={{ display:'flex', alignItems:'center' }}>
+            <p>{blog.likes}</p><button onClick={() => likeBlog(blog)}>Like</button>
+            <button onClick={() => removeBlog(blog.id)}>Remove</button>
+          </div>
         </div>
-      </div>
-    )}
-  </div>  
-  ) 
+      )}
+    </div>
+  )
 }
 
 export default Blog
