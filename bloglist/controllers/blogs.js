@@ -23,24 +23,11 @@ blogsRouter.post('/', async (request, response, next) => {
   })
 
   const savedBlog = await blog.save() // Assign to retrieve generated id from mongoose
+  await savedBlog.populate('user', { username: 1, name: 1}) // Two step operation, populates savedBlog with user info
   request.user.blogs = request.user.blogs.concat(savedBlog._id) // Map back to blog as well
   await request.user.save()
   response.status(201).json(savedBlog)
 
-})
-
-blogsRouter.post('/', async (request, response, next) => {
-  
-  const body = request.body
-
-  const blog = new Blog({
-    title: body.title,
-    author: body.author,
-    url: body.url
-  })
-
-  const savedBlog = await blog.save()
-  response.status(201).json(savedBlog)
 })
 
 blogsRouter.delete('/:id', async (request, response, next) => {
