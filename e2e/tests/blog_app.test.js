@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith } = require('./helper')
+const { loginWith, createBlog } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -42,5 +42,31 @@ describe('Blog app', () => {
     await loginWith(page, 'root', 'wrongpassword')
     await expect(page.getByText('Wrong username or password')).toBeVisible()
     await expect(page.getByText('user logged-in')).not.toBeVisible()
+  })
+
+  describe('when logged in', () => {
+    beforeEach(async ({ page }) => {
+      await loginWith(page, 'root', 'password')
+    })
+
+    describe('and several blogs exist', () => {
+      beforeEach(async({ page }) => {
+        await createBlog(page, 'first blog title', 'author 1', 'url.com')
+        await createBlog(page, 'second blog title', 'author 2', 'url2.com')
+        await createBlog(page, 'third blog title', 'author 3', 'url3.com')
+      })
+
+      test('can like a single note', async ({page}) => {
+        const otherBlogTitle = await page.getByText('first blog title')
+        const otherBlogElement = await otherBlogTitle.locator('..')
+        console.log(await otherBlogElement.innerHTML());  // Ensure it's the right text
+
+        await otherBlogElement.getByRole('button', { name: 'view'}).click()
+        await otherBlogElement.getByRole('button', { name: 'like'}).click()
+        
+        const likeCount = await otherBlogElement.getByTestId('blog-likes')
+        await expect(likeCount).toHaveText('1', { timeout: 3000 });
+      })
+    })
   })
 })
