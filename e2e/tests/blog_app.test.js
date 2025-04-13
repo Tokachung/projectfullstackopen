@@ -6,8 +6,8 @@ describe('Blog app', () => {
     // 1. Reset the backend
     await request.post('http://localhost:3000/api/testing/reset')
   
-    // 2. Re-create the user into the DB
-    const response = await request.post('http://localhost:3000/api/users', {
+    // 2. Re-create the users into the DB
+    await request.post('http://localhost:3000/api/users', {
       data: {
           name: "user",
           username: "root",
@@ -15,9 +15,13 @@ describe('Blog app', () => {
       }
     });
 
-    console.log('Status:', response.status());
-    const body = await response.text();
-    console.log('Response body:', body);
+    await request.post('http://localhost:3000/api/users', {
+      data: {
+          name: "greg house",
+          username: "greghouse",
+          password: "password"
+      }
+    });
 
     // 3. Navigate to app *first* (MUST be on same-origin before evaluating)
     await page.goto('http://localhost:5173');
@@ -53,7 +57,34 @@ describe('Blog app', () => {
     await expect(page.getByText('user logged-in')).not.toBeVisible()
   })
 
-  describe('when logged in', () => {
+  describe('when blog created by root user', () => {
+    beforeEach(async ({ page }) => {
+      await loginWith(page, 'root', 'password')
+      await createBlog(page, 'blog-owned-by-root', 'root-author', 'root-url');
+
+      // Logout by nuking localStorage in browser
+      await page.evaluate(() => {
+        window.localStorage.removeItem('loggedBlogappUser');
+      });
+
+      // Optional: reload the page to reset app state
+      await page.reload();
+
+      // Log in as User B
+      await loginWith(page, 'greghouse', 'password');
+    })
+
+    test('second user can not remove blog from root user', async ({page}) => {
+      const otherBlogTitle = await page.getByText('blog-owned-by-root')
+      const otherBlogElement = await otherBlogTitle.locator('..')
+      console.log(await otherBlogElement.innerHTML());  // Ensure it's the right text
+
+      await otherBlogElement.getByRole('button', { name: 'view'}).click()
+      await expect(otherBlogElement.getByRole('button', { name: 'Remove'})).not.toBeVisible()
+    })
+  })
+
+  describe('when logged in as root user', () => {
     beforeEach(async ({ page }) => {
       await loginWith(page, 'root', 'password')
     })
