@@ -1,6 +1,9 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
 const { loginWith, createBlog } = require('./helper')
 
+// NOTE: This test has async timing issues early on, but passes consistently after retries.
+// Leaving it alone for now to preserve sanity.
+
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     // 1. Reset the backend
