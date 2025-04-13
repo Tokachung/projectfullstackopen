@@ -3,8 +3,10 @@ const { loginWith, createBlog } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
+    // 1. Reset the backend
     await request.post('http://localhost:3000/api/testing/reset')
   
+    // 2. Re-create the user into the DB
     const response = await request.post('http://localhost:3000/api/users', {
       data: {
           name: "user",
@@ -17,8 +19,13 @@ describe('Blog app', () => {
     const body = await response.text();
     console.log('Response body:', body);
 
-    await page.goto('http://localhost:5173')
+    // 3. Navigate to app *first* (MUST be on same-origin before evaluating)
+    await page.goto('http://localhost:5173');
+
+    // 4. Clear localStorage (NOW it's safe)
     await page.evaluate(() => localStorage.clear());
+
+    // 5. Reload to re-bootstrap with clean localStorage
     await page.reload();
   })
 
@@ -85,6 +92,23 @@ describe('Blog app', () => {
         await otherBlogElement.getByRole('button', { name: 'Remove'}).click()
 
         await expect(page.getByText('first blog title')).toHaveCount(0);
+      })
+
+      test('valid user can change mind for delete a blog', async ({page}) => {
+        page.once('dialog', async (dialog) => {
+          expect(dialog.message()).toBe("Are you sure you want to do this bro?");
+          await dialog.dismiss() // Simulates clicking "OK" / "Yes"
+        });
+
+        await expect(page.getByText('first blog title')).toHaveCount(1);
+
+        const otherBlogTitle = await page.getByText('first blog title')
+        const otherBlogElement = await otherBlogTitle.locator('..')
+
+        await otherBlogElement.getByRole('button', { name: 'view'}).click()
+        await otherBlogElement.getByRole('button', { name: 'Remove'}).click()
+
+        await expect(page.getByText('first blog title')).toHaveCount(1);
       })
     })
   })
