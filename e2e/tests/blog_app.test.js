@@ -18,6 +18,8 @@ describe('Blog app', () => {
     console.log('Response body:', body);
 
     await page.goto('http://localhost:5173')
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
   })
 
   test('Login form is shown', async ({ page }) => {
@@ -66,6 +68,23 @@ describe('Blog app', () => {
         
         const likeCount = await otherBlogElement.getByTestId('blog-likes')
         await expect(likeCount).toHaveText('1', { timeout: 3000 });
+      })
+
+      test('valid user can delete a blog', async ({page}) => {
+        page.once('dialog', async (dialog) => {
+          expect(dialog.message()).toBe("Are you sure you want to do this bro?");
+          await dialog.accept(); // Simulates clicking "OK" / "Yes"
+        });
+
+        await expect(page.getByText('first blog title')).toHaveCount(1);
+
+        const otherBlogTitle = await page.getByText('first blog title')
+        const otherBlogElement = await otherBlogTitle.locator('..')
+
+        await otherBlogElement.getByRole('button', { name: 'view'}).click()
+        await otherBlogElement.getByRole('button', { name: 'Remove'}).click()
+
+        await expect(page.getByText('first blog title')).toHaveCount(0);
       })
     })
   })

@@ -6,6 +6,7 @@ const loginWith = async (page, username, password) => {
 }
 
 const createBlog = async (page, title, author, url) => {
+    console.log('Current user:', await page.evaluate(() => localStorage.getItem('loggedBlogappUser')));
     await page.getByRole('button', { name: 'new blog'}).click()
     await page.getByTestId('title-input').fill(title)
     await page.getByTestId('author-input').fill(author)
@@ -13,6 +14,7 @@ const createBlog = async (page, title, author, url) => {
     await page.getByRole('button', { name: 'create'}).click()
     await page.waitForSelector(`text=${title}`);
     await page.waitForSelector(`text=${author}`);
+    
 }
 
 export { loginWith, createBlog }
