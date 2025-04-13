@@ -14,7 +14,7 @@ const createBlog = async (page, title, author, url) => {
     await page.getByRole('button', { name: 'create'}).click()
     await page.waitForSelector(`text=${title}`);
     await page.waitForSelector(`text=${author}`);
-    
 }
+
 
 export { loginWith, createBlog }

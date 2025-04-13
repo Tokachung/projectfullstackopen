@@ -57,6 +57,12 @@ describe('Blog app', () => {
     await expect(page.getByText('user logged-in')).not.toBeVisible()
   })
 
+  describe('when blogs with different likes exist', () => {
+    beforeEach(async ({ page }) => {
+      await loginWith(page, 'root', 'password')
+    })
+  })
+
   describe('when blog created by root user', () => {
     beforeEach(async ({ page }) => {
       await loginWith(page, 'root', 'password')
@@ -141,6 +147,42 @@ describe('Blog app', () => {
 
         await expect(page.getByText('first blog title')).toHaveCount(1);
       })
+    
+      test('likes are sequential upon refresh', async ({ page }) => {
+        const blogTitles = [
+          { title: 'first blog title', likes: 1 },
+          { title: 'second blog title', likes: 2 },
+          { title: 'third blog title', likes: 3 }
+        ];
+      
+        // Like each blog N times
+        for (const { title, likes } of blogTitles) {
+          const blog = page.locator('[data-testid="blog"]', { hasText: title });
+          await blog.getByRole('button', { name: 'view' }).click();
+          for (let i = 0; i < likes; i++) {
+            await blog.getByRole('button', { name: 'Like' }).click();
+            await page.waitForTimeout(300);
+          }
+        }
+      
+        // Reload and re-login to ensure state is persisted
+        await page.goto('http://localhost:5173');
+        await page.getByRole('button', { name: 'Log out' }).click();
+        await loginWith(page, 'root', 'password');
+        await page.waitForTimeout(300);
+      
+        const blogs = page.locator('[data-testid="blog"]');
+      
+        // Expand all blogs to reveal like counts
+        for (let i = 0; i < 3; i++) {
+          await blogs.nth(i).getByRole('button', { name: 'view' }).click();
+        }
+      
+        // Assert descending order of likes
+        await expect(blogs.nth(0).getByTestId('blog-likes')).toHaveText('3');
+        await expect(blogs.nth(1).getByTestId('blog-likes')).toHaveText('2');
+        await expect(blogs.nth(2).getByTestId('blog-likes')).toHaveText('1');
+      });
     })
   })
 })
