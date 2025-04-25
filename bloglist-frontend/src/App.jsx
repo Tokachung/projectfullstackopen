@@ -38,7 +38,10 @@ const App = () => {
       setUser(user)
       blogService.getAllBlogs().then(blogs => {
         setBlogs(blogs)
+        console.log('blogs are', blogs)
       })
+
+      console.log('set user is, ', user)
 
       setUsername('')
       setPassword('')
@@ -173,6 +176,8 @@ const App = () => {
     } catch (error) {
       console.log('error is', error)
     }
+
+    console.log('like button clicked')
   }
 
   return (
@@ -192,7 +197,7 @@ const App = () => {
       }
 
       {blogs.map(blog =>
-        <Blog removeBlog={removeBlog} likeBlog={likeBlog} key={blog.id} blog={blog} />
+        <Blog currentUser={user} removeBlog={removeBlog} likeBlog={likeBlog} key={blog.id} blog={blog} />
       )}
     </div>
   )

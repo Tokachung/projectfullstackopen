@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, removeBlog, likeBlog }) => {
+const Blog = ({ blog, removeBlog, likeBlog, currentUser }) => {
 
   const [visibleDetails, setVisibleDetails] = useState(false)
 
@@ -16,19 +16,24 @@ const Blog = ({ blog, removeBlog, likeBlog }) => {
     marginBottom: 5
   }
 
+  console.log('current', currentUser)
+  console.log('users', blog)
+
   return (
-    <div style={blogStyle}>
-      <p>Title: {blog.title}</p>
-      <p>Author: {blog.author}</p>
-      <p>Upload: {blog.user.name}</p>
+    <div data-testid="blog" style={blogStyle}>
+      <p data-testid="blog-title">Title: {blog.title}</p>
+      <p data-testid="blog-author">Author: {blog.author}</p>
+      <p data-testid="blog-upload">Upload: {blog.user.name}</p>
 
       <button onClick={toggleVisibility}>view</button>
       {visibleDetails && (
         <div>
-          <p>{blog.url}</p>
+          <p data-testid="blog-url">{blog.url}</p>
           <div style={{ display:'flex', alignItems:'center' }}>
-            <p>{blog.likes}</p><button onClick={() => likeBlog(blog)}>Like</button>
-            <button onClick={() => removeBlog(blog.id)}>Remove</button>
+            <p data-testid="blog-likes">{blog.likes}</p><button onClick={() => likeBlog(blog)}>Like</button>
+            {currentUser.username === blog.user.username && (
+              <button onClick={() => removeBlog(blog.id)}>Remove</button>
+            )}
           </div>
         </div>
       )}
