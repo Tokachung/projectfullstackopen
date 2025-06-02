@@ -1,8 +1,13 @@
 import { useSelector, useDispatch } from 'react-redux'
+// import reducer from './anecdoteReducer'
+
+// const store = createStore(reducer)
 
 const App = () => {
   const anecdotes = useSelector(state => state)
   const dispatch = useDispatch()
+
+  // Once reducer has been properly implemented, dispatch actions
 
   const vote = (id) => {
     console.log('vote', id)
