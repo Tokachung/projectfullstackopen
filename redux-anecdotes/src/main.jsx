@@ -12,7 +12,3 @@ root.render(
     <App />
   </Provider>
 )
-const renderApp = () => {
-  root.render(<App />)
-}
-store.subscribe(renderApp)

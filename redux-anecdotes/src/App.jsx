@@ -7,6 +7,9 @@ const generateId = () => {
 const App = () => {
 
   const anecdotes = useSelector(state => state)
+  const sortedAnecdotes = [...anecdotes].sort((a, b) => (
+    a.votes - b.votes
+  ))
   const dispatch = useDispatch()
 
   const addAnecdote = (event) => {
@@ -37,7 +40,7 @@ const App = () => {
   return (
     <div>
       <h2>Anecdotes</h2>
-      {anecdotes.map(anecdote =>
+      {sortedAnecdotes.map(anecdote =>
         <div key={anecdote.id}>
           <div>
             {anecdote.content}
