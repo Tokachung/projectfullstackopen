@@ -1,3 +1,5 @@
+import { createSlice } from '@reduxjs/toolkit'
+
 const anecdotesAtStart = [
   'If it hurts, do it more often',
   'Adding manpower to a late software project makes it later!',
@@ -7,39 +9,54 @@ const anecdotesAtStart = [
   'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
 ]
 
-const getId = () => (100000 * Math.random()).toFixed(0)
+const generateId = () => (100000 * Math.random()).toFixed(0)
 
 const asObject = (anecdote) => {
   return {
     content: anecdote,
-    id: getId(),
+    id: generateId(),
     votes: 0
   }
 }
 
 const initialState = anecdotesAtStart.map(asObject)
+console.log('initial state is', initialState)
 
-const anecdoteReducer = (state = initialState, action) => {
-  console.log('state now: ', state)
-  console.log('action', action)
-  switch (action.type) {
-    case 'VOTE': {
+const anecdoteSlice = createSlice({
+  name: 'anecdotes',
+  initialState,
+  reducers: {
+    createAnecdote(state, action) {
+      const content = action.payload
+      state.push({
+        content,
+        id: generateId(),
+        votes: 0
+      })
+    },
+    voteForAnecdote(state, action) {
       const id = action.payload.id
-      console.log('id is', id)
       const anecdoteToChange = state.find(a => a.id === id)
+
+      console.log('anecdoteToChange', anecdoteToChange)
+      if (!anecdoteToChange) {
+        console.error(`Anecdote with id ${id} not found`)
+        return state
+      }
+      
       const changedAnecdote = {
         ...anecdoteToChange,
         votes: anecdoteToChange.votes + 1
       }
-      console.log(changedAnecdote)
-      return state.map(anecdote => anecdote.id !== id ? anecdote : changedAnecdote)
-    }
 
-    case 'NEW_ANECDOTE': {
-      return state.concat(action.payload)
+      console.log(state, id, anecdoteToChange, changedAnecdote)
+
+      return state.map(anecdote =>
+        anecdote.id !== id ? anecdote : changedAnecdote
+      )
     }
-    default: return state
   }
-}
+})
 
-export default anecdoteReducer
+export const { createAnecdote, voteForAnecdote } = anecdoteSlice.actions
+export default anecdoteSlice.reducer
