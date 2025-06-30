@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import AnecdoteForm from './components/AnecdoteForm'
 import AnecdoteList from './components/AnecdoteList'
 import filterReducer, { filterChange } from './reducers/filterReducer'
+import Notification from './components/Notification'
 
 const App = () => {
 
@@ -13,6 +14,7 @@ const App = () => {
       filter<input onChange={(event) => {
         dispatch(filterChange(event.target.value))
       }}/>
+      <Notification />
       <AnecdoteList />
       <AnecdoteForm />
     </div>
