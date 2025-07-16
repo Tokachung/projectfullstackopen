@@ -13,4 +13,4 @@ const createNew = async (content) => {
     return response.data
 }
 
-export default { getAll, createNew, update }
+export default { getAll, createNew }
