@@ -1,5 +1,6 @@
 phonebook/node_modules
 phonebook/backend/.env
 phonebook/node_modules
+query-anecdotes/node_modules
 bloglist/node_modules
 bloglist/.env
