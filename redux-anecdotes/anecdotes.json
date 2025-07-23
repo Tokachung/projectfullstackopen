@@ -3,22 +3,22 @@
     {
       "content": "If it hurts, do it more often",
       "id": "47145",
-      "votes": 19
+      "votes": 26
     },
     {
       "content": "Adding manpower to a late software project makes it later!",
       "id": "21149",
-      "votes": 0
+      "votes": 2
     },
     {
       "content": "The first 90 percent of the code accounts for the first 10 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.",
       "id": "69581",
-      "votes": 1
+      "votes": 2
     },
     {
       "content": "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
       "id": "36975",
-      "votes": 0
+      "votes": 1
     },
     {
       "content": "Premature optimization is the root of all evil.",
@@ -43,6 +43,86 @@
     {
       "id": "9f4d",
       "content": "test2",
+      "votes": 0
+    },
+    {
+      "id": "b5a8",
+      "content": "test",
+      "votes": 0
+    },
+    {
+      "id": "9f24",
+      "content": "test",
+      "votes": 0
+    },
+    {
+      "id": "3de6",
+      "content": "test",
+      "votes": 0
+    },
+    {
+      "id": "f6fc",
+      "content": "test",
+      "votes": 0
+    },
+    {
+      "id": "0275",
+      "content": "new",
+      "votes": 0
+    },
+    {
+      "id": "8f69",
+      "content": "test",
+      "votes": 0
+    },
+    {
+      "id": "a4b5",
+      "content": "test",
+      "votes": 0
+    },
+    {
+      "id": "5fb2",
+      "content": "",
+      "votes": 0
+    },
+    {
+      "id": "7d46",
+      "content": "",
+      "votes": 0
+    },
+    {
+      "id": "294f",
+      "content": "",
+      "votes": 0
+    },
+    {
+      "id": "a772",
+      "content": "",
+      "votes": 0
+    },
+    {
+      "id": "e270",
+      "content": "",
+      "votes": 0
+    },
+    {
+      "id": "c7f1",
+      "content": "",
+      "votes": 0
+    },
+    {
+      "id": "04a6",
+      "content": "",
+      "votes": 0
+    },
+    {
+      "id": "3b4c",
+      "content": "",
+      "votes": 0
+    },
+    {
+      "id": "398e",
+      "content": "",
       "votes": 0
     }
   ]
