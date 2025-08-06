@@ -58,6 +58,7 @@ const CreateNew = (props) => {
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
+  const [updateMessage, setUpdateMessage] = useState('')
 
 
   const handleSubmit = (e) => {
@@ -68,13 +69,19 @@ const CreateNew = (props) => {
       info,
       votes: 0
     })
+    setUpdateMessage(`anecdote ${content} created`)
+    setTimeout(() => {
+      setUpdateMessage('')
+    }, 5000)
   }
 
+  
   return (
     <div>
       <h2>create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
         <div>
+          <p>{updateMessage}</p>
           content
           <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
         </div>
@@ -94,8 +101,6 @@ const CreateNew = (props) => {
 }
 
 const App = () => {
-
-
 
   const [anecdotes, setAnecdotes] = useState([
     {
@@ -149,7 +154,7 @@ const App = () => {
 
       <Routes>
         <Route path="/anecdotes" element={<AnecdoteList anecdotes={anecdotes}/>} />
-        <Route path="/create-new" element={<CreateNew />} />
+        <Route path="/create-new" element={<CreateNew addNew={addNew}/>} />
         <Route path="/about" element={<About />} />
         <Route path="/anecdotes/:id" element={<Anecdote anecdote={anecdote} />} />
       </Routes>
