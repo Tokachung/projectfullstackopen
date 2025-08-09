@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Link, Routes, Route, useMatch } from 'react-router-dom'
 import { useState } from 'react'
+import { useField } from './hooks/index.js'
 
 const Menu = () => {
   const padding = {
@@ -14,7 +15,8 @@ const Menu = () => {
   )
 }
 
-const AnecdoteList = ({ anecdotes }) => (
+const AnecdoteList = ({ anecdotes }) => {
+  return (
   <div>
     <h2>Anecdotes</h2>
     <ul>
@@ -22,6 +24,7 @@ const AnecdoteList = ({ anecdotes }) => (
     </ul>
   </div>
 )
+}
 
 const Anecdote = ({ anecdote }) => (
   <div>
@@ -55,26 +58,25 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  const content = useField('text')
+  const author = useField('text')
+  const info = useField('text')
   const [updateMessage, setUpdateMessage] = useState('')
-
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
-    setUpdateMessage(`anecdote ${content} created`)
+
+    setUpdateMessage(`anecdote ${content.value} created`)
     setTimeout(() => {
       setUpdateMessage('')
     }, 5000)
   }
-
   
   return (
     <div>
@@ -83,21 +85,20 @@ const CreateNew = (props) => {
         <div>
           <p>{updateMessage}</p>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input name='content' value={content.value} onChange={(e) => content.onChange(e)} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input name='author' value={author.value} onChange={(e) => author.onChange(e)} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input name='info' value={info.value} onChange={(e)=> info.onChange(e)} />
         </div>
         <button>create</button>
       </form>
     </div>
   )
-
 }
 
 const App = () => {
