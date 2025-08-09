@@ -92,15 +92,15 @@ const CreateNew = (props) => {
         <div>
           <p>{updateMessage}</p>
           content
-          <input type="text" name='content' value={content.value} onChange={content.onChange} />
+          <input {...content} />
         </div>
         <div>
           author
-          <input type="text" name='author' value={author.value} onChange={author.onChange} />
+          <input {...author} />
         </div>
         <div>
           url for more info
-          <input type="text" name='info' value={info.value} onChange={info.onChange} />
+          <input {...info} />
         </div>
         <button type="submit">create</button>
         <button type="reset">reset</button>
