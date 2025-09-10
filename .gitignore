@@ -1,8 +1,2 @@
-phonebook/node_modules
-phonebook/backend/.env
-phonebook/node_modules
-query-anecdotes/node_modules
-bloglist/node_modules
-bloglist/.env
-routed-anecdotes/node_modules
-country-hook/node_modules
+**/node_modules/
+**/.env
