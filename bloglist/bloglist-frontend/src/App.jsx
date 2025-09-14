@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useReducer } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
@@ -12,8 +12,37 @@ const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  // const [errorMessage, setErrorMessage] = useState(null);
+  // const [successMessage, setSuccessMessage] = useState(null);
+
+  function messageReducer(state, action) {
+    switch (action.type) {
+      case "SUCCESS":
+        return {
+          type: action.type,
+          text: action.text
+        }
+      
+        case 'ERROR': {
+          return {
+            type: action.type.toLowerCase(),
+            text: action.text ?? 'Wrong username or password'
+          }
+
+        }
+
+        case 'CLEAR': {
+          return {
+            type: null,
+            text: null
+          }
+        }
+        default:
+          return state;
+    }
+  }
+  
+  const [message, dispatchMessage] = useReducer(messageReducer, {type: null, text: null})
 
   const blogFormRef = useRef();
 
@@ -44,13 +73,10 @@ const App = () => {
 
       setUsername("");
       setPassword("");
-      setErrorMessage(null);
-      setSuccessMessage(null);
     } catch (exception) {
-      setErrorMessage("Wrong username or password");
-      setSuccessMessage(null);
+      dispatchMessage({ type: 'ERROR'})
       setTimeout(() => {
-        setErrorMessage(null);
+        dispatchMessage( { type: 'CLEAR' })
       }, 5000);
     }
   };
@@ -59,10 +85,11 @@ const App = () => {
     blogFormRef.current.toggleVisibility();
     blogService.createBlog(blogObject).then((returnedBlog) => {
       setBlogs(blogs.concat(returnedBlog));
-      setSuccessMessage(
-        `a new blog ${returnedBlog.title} by ${user.name} added`,
-      );
-      setErrorMessage(null);
+      dispatchMessage({
+        type: 'SUCCESS',
+        text: `a new blog ${returnedBlog.title} by ${user.name} added`,
+      });
+      setTimeout(() => dispatchMessage({ type: 'CLEAR' }), 4000);
     });
   };
 
@@ -76,8 +103,13 @@ const App = () => {
     setBlogs([]);
     blogService.setToken(null);
 
-    setSuccessMessage("Log out successful.");
-    setErrorMessage(null);
+    dispatchMessage({
+        type: 'SUCCESS',
+        text: `Log out successful`,
+    });
+
+    setTimeout(() => dispatchMessage({ type: 'CLEAR' }), 3000);
+
   };
 
   const loginForm = () => {
@@ -106,20 +138,29 @@ const App = () => {
 
   useEffect(() => {
     if (!user) {
-      setErrorMessage("Please log in to view the blogs");
-      setSuccessMessage(null);
+      dispatchMessage({
+        type: 'ERROR',
+        text: "Please log in to view the blogs",
+      });
+
+      setTimeout(() => dispatchMessage({ type: 'CLEAR' }), 5000);
     } else {
       blogService
         .getAllBlogs()
         .then((blogs) => setBlogs(sortBlogs(blogs)))
         .catch((error) => {
           if (error.response && error.response.status === 401) {
-            setErrorMessage("Please log in to view the blogs");
-            setSuccessMessage(null);
+            dispatchMessage({
+              type: 'ERROR',
+              text: "Please log in to view the blogs",
+            });
           } else {
-            setErrorMessage("Failed to fetch blogs.");
-            setSuccessMessage(null);
+            dispatchMessage({
+              type: 'ERROR',
+              text: "Failed to fetch blogs",
+            });
           }
+          setTimeout(() => dispatchMessage({ type: 'CLEAR' }), 5000);
         });
     }
   }, [user]);
@@ -187,8 +228,8 @@ const App = () => {
     <div>
       <h2>blogs</h2>
 
-      <Notification message={errorMessage} type="error" />
-      <Notification message={successMessage} type="success" />
+      <Notification message={message.text} type={message.type} />
+      {/* <Notification message={message} type="success" /> */}
 
       {user === null ? (
         loginForm()
