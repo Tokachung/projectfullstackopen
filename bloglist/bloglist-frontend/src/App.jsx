@@ -41,15 +41,39 @@ const App = () => {
           return state;
     }
   }
+
+  function blogReducer(state, action) {
+    switch (action.type) {
+      case "SET":
+        return action.blogs ?? [];
+      
+      case "ADD": {
+        return state.concat(action.blog)
+      }
+
+      case "REMOVE": {
+        return state.filter((blog) => blog.id !== action.id)
+      }
+
+      case "LIKE": {
+        return state.map((blog) => blog.id === action.likedBlog.id ? { ...action.likedBlog } : blog)
+      }
+
+      case "FILTER":
+        return [...state].sort((a, b) => b.likes - a.likes);
+      }   
+  }
+
   
-  const [message, dispatchMessage] = useReducer(messageReducer, {type: null, text: null})
+  const [message, dispatchMessage] = useReducer(messageReducer, { type: null, text: null })
+  const [blog, dispatchBlog] = useReducer(blogReducer, { type:null })
 
   const blogFormRef = useRef();
 
-  const sortBlogs = (blogs) => {
-    const blogsCopy = [...blogs];
-    return blogsCopy.sort((a, b) => b.likes - a.likes);
-  };
+  // const sortBlogs = (blogs) => {
+  //   const blogsCopy = [...blogs];
+  //   return blogsCopy.sort((a, b) => b.likes - a.likes);
+  // };
 
   const handleLogin = async (event) => {
     event.preventDefault(); // By default, this would cause page to reload due to default for form submission
@@ -65,16 +89,16 @@ const App = () => {
 
       setUser(user);
       blogService.getAllBlogs().then((blogs) => {
-        setBlogs(blogs);
+        dispatchBlog({type: 'SET', blogs: blogs});
         console.log("blogs are", blogs);
       });
-
+      
       console.log("set user is, ", user);
 
       setUsername("");
       setPassword("");
     } catch (exception) {
-      dispatchMessage({ type: 'ERROR'})
+      dispatchMessage({ type: 'ERROR' })
       setTimeout(() => {
         dispatchMessage( { type: 'CLEAR' })
       }, 5000);
@@ -84,7 +108,8 @@ const App = () => {
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility();
     blogService.createBlog(blogObject).then((returnedBlog) => {
-      setBlogs(blogs.concat(returnedBlog));
+      //setBlogs(blogs.concat(returnedBlog));
+      dispatchBlog({type: 'ADD', blog: returnedBlog})
       dispatchMessage({
         type: 'SUCCESS',
         text: `a new blog ${returnedBlog.title} by ${user.name} added`,
@@ -100,7 +125,8 @@ const App = () => {
 
     window.localStorage.removeItem("loggedBlogappUser");
 
-    setBlogs([]);
+    //setBlogs([]);
+    dispatchBlog({type: 'SET'})
     blogService.setToken(null);
 
     dispatchMessage({
@@ -142,12 +168,11 @@ const App = () => {
         type: 'ERROR',
         text: "Please log in to view the blogs",
       });
-
       setTimeout(() => dispatchMessage({ type: 'CLEAR' }), 5000);
     } else {
       blogService
         .getAllBlogs()
-        .then((blogs) => setBlogs(sortBlogs(blogs)))
+        .then((blogs) => dispatchBlogs({type: 'FILTER'}))//setBlogs(sortBlogs(blogs))
         .catch((error) => {
           if (error.response && error.response.status === 401) {
             dispatchMessage({
@@ -193,7 +218,9 @@ const App = () => {
     if (userResponse) {
       try {
         await blogService.deleteBlog(blogId);
-        setBlogs(blogs.filter((blog) => blog.id !== blogId));
+        
+        // setBlogs(blogs.filter((blog) => blog.id !== blogId));
+        dispatchBlog({type: 'REMOVE', id: blog.id})
       } catch (error) {
         console.log("error is", error);
       }
@@ -212,11 +239,12 @@ const App = () => {
         blogObject.id,
         updatedBlogObject,
       ); // Added await keyword
-      setBlogs((prevBlogs) =>
-        prevBlogs.map((blog) =>
-          blog.id === returnedBlog.id ? { ...returnedBlog } : blog,
-        ),
-      );
+      // setBlogs((prevBlogs) =>
+      //   prevBlogs.map((blog) =>
+      //     blog.id === returnedBlog.id ? { ...returnedBlog } : blog,
+      //   ),
+      // );
+      dispatchBlog({type: 'LIKE', likedBlog: updatedBlogObject})
     } catch (error) {
       console.log("error is", error);
     }
